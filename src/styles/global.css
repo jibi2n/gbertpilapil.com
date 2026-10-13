@@ -1378,6 +1378,30 @@ html:not(.themes-unlocked) .mascot {
   margin-bottom: clamp(2rem, 4vw, 3.5rem);
 }
 
+/* The specialization row is the main filter; technology is tucked under a
+   toggle beneath it so the page doesn't open with twenty buttons. */
+.filters:has(+ .filter-more) {
+  margin-bottom: 1rem;
+}
+
+.filter-more {
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+}
+
+.filter-more summary {
+  cursor: pointer;
+  width: fit-content;
+}
+
+.filters-small {
+  margin: 1rem 0 0;
+}
+
+.filters-small .chip {
+  padding: 0.3rem 0.8rem;
+  font-size: 0.875rem;
+}
+
 .filter {
   cursor: pointer;
 }

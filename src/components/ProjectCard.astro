@@ -12,7 +12,7 @@ interface Props {
 const { project, minimal = false } = Astro.props;
 ---
 
-<article class="project" data-tech={project.technologies.join('|')}>
+<article class="project" data-spec={project.specializations.join('|')} data-tech={project.technologies.join('|')}>
   {
     project.imageUrl ? (
       <div class="media is-pending">

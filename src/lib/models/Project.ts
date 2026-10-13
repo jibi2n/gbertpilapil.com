@@ -17,6 +17,8 @@ export interface ProjectData {
   /** Appears on the Projects page. Showcased projects appear there regardless. */
   listed?: boolean;
   sortOrder?: number;
+  /** The fields it belongs to, e.g. ["Web Development", "AI"]. The Projects page filters by these. */
+  specializations?: readonly string[];
   /** Technology names. Each must exist in the technologies table. */
   technologies?: readonly string[];
 }
@@ -35,6 +37,7 @@ export class Project {
   readonly featured: boolean;
   readonly listed: boolean;
   readonly sortOrder: number;
+  readonly specializations: readonly string[];
   readonly technologies: readonly string[];
 
   constructor(data: ProjectData) {
@@ -55,6 +58,8 @@ export class Project {
     this.featured = data.featured ?? false;
     this.listed = data.listed ?? true;
     this.sortOrder = sortOrder(data.sortOrder);
+    // Trimmed, and without repeats, so "AI" and " AI" are one filter.
+    this.specializations = [...new Set((data.specializations ?? []).map((name) => name.trim()).filter(Boolean))];
     this.technologies = [...(data.technologies ?? [])];
   }
 

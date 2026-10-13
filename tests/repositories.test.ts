@@ -47,6 +47,7 @@ test('seeded projects load with their technologies, featured ones in order', asy
   expect(featured[0].technologies).toHaveLength(8);
   expect(featured[0].detailParagraphs).toHaveLength(2);
   expect(featured[0].log).toHaveLength(4);
+  expect(featured[0].specializations).toEqual(['AI', 'Web Development']);
   expect((await projects.list()).length).toBeGreaterThan(featured.length);
 
   // The Projects page shows the showcased ones plus anything marked as listed.
@@ -63,12 +64,14 @@ test('a project can be created, updated and deleted', async () => {
       summary: 'A test',
       technologies: ['Rust'],
       log: ['Did one thing', '  ', 'Did another\nthing'],
+      specializations: [' AI ', 'AI', '', 'Web Development'],
     }),
   );
   expect(created.id).not.toBeNull();
   expect(created.technologies).toEqual(['Rust']);
   expect(created.featured).toBe(false);
   expect(created.listed).toBe(true);
+  expect(created.specializations).toEqual(['AI', 'Web Development']);
 
   // Unlisted and not showcased: stored, but off the Projects page.
   await projects.update(new Project({ ...created, listed: false }));

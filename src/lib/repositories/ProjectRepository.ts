@@ -20,6 +20,8 @@ export class ProjectRepository extends Repository<Project> {
       repoUrl: row.repo_url as string | null,
       featured: row.featured === 1,
       listed: row.listed === 1,
+      // Stored one per line.
+      specializations: (row.specializations as string).split('\n'),
       sortOrder: row.sort_order as number,
       technologies,
     });
@@ -38,6 +40,7 @@ export class ProjectRepository extends Repository<Project> {
       repo_url: project.repoUrl,
       featured: project.featured ? 1 : 0,
       listed: project.listed ? 1 : 0,
+      specializations: project.specializations.join('\n'),
       sort_order: project.sortOrder,
     };
   }

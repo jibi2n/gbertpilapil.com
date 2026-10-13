@@ -168,3 +168,10 @@ UPDATE projects SET
 Wrote the animation loop and the state machine that decide when the Digimon walks and when it idles.
 Hooked into editor events so it reacts to coding activity.'
 WHERE slug = 'digimon-pets';
+
+-- Which fields each project belongs to (one per line). The Projects page filters by these.
+UPDATE projects SET specializations = 'AI
+Web Development' WHERE slug = 'sana-ai';
+UPDATE projects SET specializations = 'Web Development' WHERE slug IN ('dollys-closet', 'pawsfolio', 'save-sierra-madre');
+UPDATE projects SET specializations = 'Data Engineering & Analytics' WHERE slug = 'shopzada-data-warehouse';
+UPDATE projects SET specializations = 'Software Engineering' WHERE slug IN ('digimon-pets', 'pomodoro-app', 'mokuteki');

@@ -38,6 +38,8 @@ let values = {
   repoUrl: existing?.repoUrl ?? '',
   featured: existing?.featured ?? true,
   listed: existing?.listed ?? true,
+  specializations: [...(existing?.specializations ?? [])],
+  newSpecializations: '',
   sortOrder: String(existing?.sortOrder ?? 0),
   technologies: [...(existing?.technologies ?? [])],
 };
@@ -64,6 +66,8 @@ if (Astro.request.method === 'POST') {
     repoUrl: text('repoUrl'),
     featured: form.get('featured') === 'on',
     listed: form.get('listed') === 'on',
+    specializations: form.getAll('specializations').map(String),
+    newSpecializations: text('newSpecializations'),
     sortOrder: text('sortOrder'),
     technologies: form.getAll('technologies').map(String),
   };
@@ -83,6 +87,8 @@ if (Astro.request.method === 'POST') {
         repoUrl: values.repoUrl,
         featured: values.featured,
         listed: values.listed,
+        // Ticked ones plus any typed in as new.
+        specializations: [...values.specializations, ...values.newSpecializations.split(',')],
         sortOrder: Number(values.sortOrder || 0),
         technologies: values.technologies,
       });
@@ -123,6 +129,10 @@ if (Astro.request.method === 'POST') {
 }
 
 const stack = await new TechnologyRepository(env.DB).listByCategory();
+// Every specialization already in use, to tick from, plus this project's own.
+const knownSpecializations = [
+  ...new Set([...(await projects.list()).flatMap((project) => [...project.specializations]), ...values.specializations]),
+].sort();
 const heading = isNew ? 'Add a project' : `Edit ${existing!.title}`;
 ---
 
@@ -166,6 +176,27 @@ const heading = isNew ? 'Add a project' : `Edit ${existing!.title}`;
       <span class="hint">Your dev log. One entry per line.</span>
       <textarea name="log" class="tall">{values.log}</textarea>
     </label>
+
+    <fieldset class="field">
+      <legend class="field-label">Specializations</legend>
+      <span class="hint">
+        The fields this project belongs to. The Projects page's main filter uses these. Pick as many as apply.
+      </span>
+      <div class="checks">
+        {
+          knownSpecializations.map((name) => (
+            <label class="check">
+              <input type="checkbox" name="specializations" value={name} checked={values.specializations.includes(name)} />
+              {name}
+            </label>
+          ))
+        }
+      </div>
+      <label class="field" style="margin-top: 0.9rem">
+        <span class="hint">Add a new one (separate several with commas)</span>
+        <input type="text" name="newSpecializations" value={values.newSpecializations} placeholder="e.g. Mobile Development" />
+      </label>
+    </fieldset>
 
     <fieldset class="field">
       <legend class="field-label">Built with</legend>
