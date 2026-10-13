@@ -1,42 +1,49 @@
 ---
-// One project in a grid. Used on the home page and on the Projects page.
-// The picture, the title and "Read what I did" all open the project's detail
-// panel, so the page also needs <ProjectPanels> for the same projects.
+// One project in a grid. The whole card opens the project's detail panel, so
+// the page also needs <ProjectPanels> for the same projects.
 import type { Project } from '../lib/models/Project';
 
 interface Props {
   project: Project;
+  /** Picture, title and summary only. The tech list and links stay in the panel. */
+  minimal?: boolean;
 }
 
-const { project } = Astro.props;
+const { project, minimal = false } = Astro.props;
 ---
 
 <article class="project" data-tech={project.technologies.join('|')}>
   {
     project.imageUrl ? (
-      <button type="button" class="media is-pending" data-project-open={project.slug} tabindex="-1" aria-hidden="true">
+      <div class="media is-pending">
         <img src={project.imageUrl} alt="" width="1280" height="800" loading="lazy" decoding="async" />
-      </button>
+      </div>
     ) : (
-      <button type="button" class="media cover" data-project-open={project.slug} tabindex="-1" aria-hidden="true">
+      <div class="media cover">
         <span class="display">{project.title}</span>
-      </button>
+      </div>
     )
   }
-  <ul class="project-tech small" aria-label="Built with">
-    {project.technologies.map((name) => <li>{name}</li>)}
-  </ul>
+  {
+    !minimal && (
+      <ul class="project-tech small" aria-label="Built with">
+        {project.technologies.map((name) => <li>{name}</li>)}
+      </ul>
+    )
+  }
   <h3 class="subheading project-title">
-    <button type="button" data-project-open={project.slug} aria-haspopup="dialog">
+    {/* This button's clickable area is stretched over the whole card (see .card-hit in global.css). */}
+    <button type="button" class="card-hit" data-project-open={project.slug} aria-haspopup="dialog">
       {project.title}
     </button>
   </h3>
-  <p class="prose mt-3">{project.summary}</p>
-  <p class="project-links">
-    <button type="button" class="link" data-project-open={project.slug} aria-haspopup="dialog">
-      Read what I did
-    </button>
-    {project.liveUrl && <a class="link" href={project.liveUrl}>Visit the live site</a>}
-    {project.repoUrl && <a class="link" href={project.repoUrl}>View the code</a>}
-  </p>
+  <p class="project-summary">{project.summary}</p>
+  {
+    !minimal && (project.liveUrl || project.repoUrl) && (
+      <p class="project-links">
+        {project.liveUrl && <a class="link" href={project.liveUrl}>Visit the live site</a>}
+        {project.repoUrl && <a class="link" href={project.repoUrl}>View the code</a>}
+      </p>
+    )
+  }
 </article>

@@ -48,7 +48,12 @@ try {
 
 <Layout>
   <!-- Shown only in the Summary theme: the short version for employers. -->
-  <Summary projects={projects.slice(0, 3)} experiences={experiences} skills={skills} stack={stack} />
+  <Summary
+    projects={projects}
+    moreCount={listedCount - projects.length}
+    experiences={experiences}
+    stack={stack}
+  />
 
   <!-- The full site, shown in every other theme. -->
   <div class="full-view">

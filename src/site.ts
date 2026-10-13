@@ -7,8 +7,6 @@ export const site = {
   /** Typed out one at a time under the name: "I'm a ...". Each should read naturally after "a". */
   roles: ['Full-stack Developer', 'UI/UX Designer', 'Computer Science Student', 'Data Scientist', 'AI & Automation Enthusiast', 'Researcher'],
   location: 'Quezon City, Philippines',
-  /** The line under the name in the Summary theme: what you are, in a few words. */
-  headline: 'Software and data developer',
   /** The pitch at the top of the Summary theme. Keep it to two or three sentences. */
   summary:
     "Hi I am an aspiring Software Engineer or Data Scientist. I enjoy building things and learning new technologies. I am very interested in AI and automation, and I am always looking for ways to expand my skills and knowledge. Most of my experience is in building web applications (mostly full stack), but I can also work with data and other stuff.",

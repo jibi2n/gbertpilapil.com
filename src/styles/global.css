@@ -276,7 +276,9 @@ html.mode-to-dark::view-transition-old(root) {
   overflow: visible;
 }
 
-/* The icon is a sun whose rays tuck in while a bite slides across it to make a moon. */
+/* The icon shows the mode a click switches to: a moon while the page is light,
+   a sun while it is dark. Going between them, the rays tuck in while a bite
+   slides across the disc. */
 .mode-toggle .sun-core,
 .mode-toggle .sun-rays,
 .mode-toggle .moon-bite {
@@ -297,16 +299,16 @@ html.mode-to-dark::view-transition-old(root) {
   stroke-linecap: round;
 }
 
-[data-mode='dark'] .mode-toggle .sun-core {
+html:not([data-mode='dark']) .mode-toggle .sun-core {
   transform: scale(1.6);
 }
 
-[data-mode='dark'] .mode-toggle .sun-rays {
+html:not([data-mode='dark']) .mode-toggle .sun-rays {
   transform: rotate(-90deg) scale(0.4);
   opacity: 0;
 }
 
-[data-mode='dark'] .mode-toggle .moon-bite {
+html:not([data-mode='dark']) .mode-toggle .moon-bite {
   transform: translate(-9px, 3px);
 }
 
@@ -649,78 +651,144 @@ footer {
   display: none;
 }
 
-/* The one place the site does not run edge to edge: a resume reads best as a
-   page-width sheet with short lines, so this is centered like a document. */
-.sheet {
-  max-width: 68rem;
+/* The landing view is one narrow, centered column. Short lines are easier to
+   read, and a single column gives the eye one path down the page. The top
+   bar and footer still span the screen. */
+.summary-wrap {
+  max-width: 850px;
   margin-inline: auto;
+}
+
+.summary-hi {
+  font-size: 1.1rem;
+  color: var(--t-muted);
+}
+
+.summary-name {
+  margin-top: 0.2rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.1;
+}
+
+.summary-lede {
+  max-width: 68ch;
+  margin-top: 1rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+/* Contact details: an icon and a label each, sized to be easy to tap. */
+.contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.contact-row a,
+.contact-plain {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 0.95rem;
+  border: 1px solid var(--t-line);
+  border-radius: var(--t-radius-pill);
   font-size: 0.95rem;
-  line-height: 1.5;
+  text-decoration: none;
 }
 
-.sheet-head {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 0.75rem 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--t-ink);
+.contact-row a:hover {
+  border-color: var(--t-ink);
+  color: var(--t-link);
 }
 
-.sheet-name {
-  font-size: clamp(2rem, 4.5vw, 2.9rem);
-}
-
-.sheet-headline {
-  margin-top: 0.35rem;
+/* The location isn't a link, so it doesn't look like one. */
+.contact-plain {
+  border-color: transparent;
+  padding-inline: 0.35rem;
   color: var(--t-muted);
 }
 
-.sheet-contact {
+.icon {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.icon-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-fill {
+  fill: currentColor;
+}
+
+.summary-block {
+  margin-top: clamp(2.75rem, 5vw, 4rem);
+}
+
+/* One heading size for every section of the landing view. */
+.summary .heading {
+  margin-bottom: 1rem;
+  font-size: clamp(1.35rem, 2.2vw, 1.6rem);
+}
+
+/* Two project cards per row in the narrow column, one on phones. */
+.summary .projects {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: 1.25rem;
+}
+
+/* A project card: a picture on top of a quiet panel. */
+.summary .project {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem 1.25rem;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 1.25rem;
+  border: 1px solid var(--t-line);
+  border-radius: 12px;
+  background: var(--t-surface);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
-.sheet-summary {
-  max-width: 72ch;
-  margin-top: 1.1rem;
-  font-size: 1.02rem;
+.summary .project:hover {
+  transform: translateY(-3px);
+  border-color: var(--t-muted);
+  box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 0.1);
 }
 
-.sheet .summary-actions {
-  margin-top: 1.1rem;
-}
-
-.sheet-body {
-  display: grid;
-  gap: 0 3rem;
-  margin-top: 0.5rem;
-}
-
-@media (min-width: 900px) {
-  .sheet-body {
-    grid-template-columns: minmax(0, 1fr) 19rem;
-  }
-}
-
-/* Section headings: small and quiet, so the entries are what you read. */
-.sheet-label,
-.summary-label {
-  padding-bottom: 0.3rem;
+.summary .project .media {
+  border-radius: 0;
   border-bottom: 1px solid var(--t-line);
-  font-size: 0.82rem;
-  font-weight: 600;
+}
+
+.summary .project > :not(.media) {
+  margin-inline: 1.25rem;
+}
+
+.summary .project-title {
+  margin-top: 1rem;
+  font-size: 1.15rem;
+}
+
+.summary .project-summary {
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
   color: var(--t-muted);
 }
 
-.sheet-label {
-  margin-top: 1.75rem;
-}
-
+/* One experience, education or award entry. */
 .entry {
-  margin-top: 0.85rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--t-line);
 }
 
 .entry-head {
@@ -728,30 +796,17 @@ footer {
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
-  gap: 0 1rem;
+  gap: 0.15rem 1.5rem;
 }
 
 .entry h3 {
-  font-size: 1rem;
+  font-size: 1.08rem;
   font-weight: 600;
-}
-
-.entry h3 button {
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-}
-
-.entry h3 button:hover {
-  color: var(--t-link);
 }
 
 .entry-when,
 .entry-sub {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: var(--t-muted);
 }
 
@@ -760,24 +815,51 @@ footer {
 }
 
 .entry-text {
-  max-width: 72ch;
-  margin-top: 0.2rem;
+  max-width: 68ch;
+  margin-top: 0.5rem;
 }
 
-.sheet-skills div {
-  margin-top: 0.75rem;
+/* Skills used in a role, as small labels. */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.7rem;
 }
 
-.sheet-skills dt {
+.tag {
+  padding: 0.15rem 0.65rem;
+  border: 1px solid var(--t-line);
+  border-radius: var(--t-radius-pill);
+  font-size: 0.82rem;
+  color: var(--t-muted);
+}
+
+/* Skills by category: the category on the left, the list beside it. */
+.skill-row {
+  display: grid;
+  gap: 0.15rem 1.5rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--t-line);
+}
+
+.skill-row dt {
   font-weight: 600;
 }
 
-.sheet-focus {
-  margin-top: 0.75rem;
+@media (min-width: 640px) {
+  .skill-row {
+    grid-template-columns: 13rem 1fr;
+  }
 }
 
-.sheet-focus li + li {
-  margin-top: 0.2rem;
+/* Small headings that name a block (used in the project panels). */
+.summary-label {
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--t-line);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--t-muted);
 }
 
 .summary-actions {
@@ -1068,7 +1150,7 @@ html:not(.themes-unlocked) .mascot {
     transform 0.6s ease;
 }
 
-.media:hover img {
+.project:hover .media img {
   transform: scale(1.03);
 }
 
@@ -1114,9 +1196,42 @@ html:not(.themes-unlocked) .mascot {
   margin-top: 0.6rem;
 }
 
-button.media {
-  width: 100%;
+/* The whole card opens the project's panel: the title button's clickable area
+   is stretched over the card, and the live-site and code links sit above it. */
+.project {
+  position: relative;
   cursor: pointer;
+}
+
+.card-hit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.card-hit:focus-visible {
+  outline: none;
+}
+
+.card-hit:focus-visible::after {
+  outline: 2px solid var(--t-link);
+  outline-offset: 4px;
+  border-radius: inherit;
+}
+
+.project:hover .project-title {
+  color: var(--t-link);
+}
+
+.project-links a {
+  position: relative;
+  z-index: 2;
+}
+
+.project-summary {
+  max-width: 62ch;
+  margin-top: 0.75rem;
 }
 
 /* Titles that open a panel look like headings, not buttons. */
@@ -1305,6 +1420,10 @@ button.media {
   .xp-desc {
     grid-column: 8 / -1;
   }
+}
+
+.xp-group {
+  margin: clamp(2.5rem, 4vw, 3.5rem) 0 1rem;
 }
 
 /* ---------- Skills ---------- */

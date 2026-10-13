@@ -125,9 +125,18 @@ test('experiences, skills and technologies round-trip', async () => {
   const seeded = await experiences.list();
   expect(seeded[0].role).toBe('Technology and Innovation Intern');
   expect(seeded[0].period()).toBe('Jun 2026 – Aug 2026');
+  expect(seeded[0].kind).toBe('experience');
+  expect(seeded[0].skills).toContain('Supabase');
+  expect(seeded.filter((entry) => entry.kind === 'education').map((entry) => entry.organization)).toEqual([
+    'University of Santo Tomas',
+  ]);
+  expect(seeded.filter((entry) => entry.kind === 'award')).toHaveLength(2);
   const job = await experiences.create(
-    new Experience({ role: 'Intern', organization: 'Acme', startDate: '2026-06', sortOrder: 99 }),
+    new Experience({ role: 'Intern', organization: 'Acme', startDate: '2026-06', sortOrder: 99, skills: [' Go ', '', 'SQL'] }),
   );
+  expect(job.kind).toBe('experience');
+  expect(job.skills).toEqual(['Go', 'SQL']);
+  expect(() => new Experience({ role: 'x', organization: 'y', kind: 'hobby' })).toThrow(ValidationError);
   expect((await experiences.list()).at(-1)!.id).toBe(job.id);
   await experiences.delete(job.id!);
 

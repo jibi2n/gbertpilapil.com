@@ -9,7 +9,7 @@ import { site } from '../site';
   <nav class="nav-links" aria-label="Sections">
     {site.sections.map((section) => <a href={`/#${section.id}`}>{section.label}</a>)}
   </nav>
-  <button type="button" class="mode-toggle" aria-label="Dark mode" aria-pressed="false">
+  <button type="button" class="mode-toggle" aria-label="Switch to dark mode">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <mask id="moon-mask">
         <rect x="-6" y="-6" width="36" height="36" fill="white"></rect>

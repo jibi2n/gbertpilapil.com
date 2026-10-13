@@ -1,4 +1,4 @@
-import { Experience } from '../models/Experience';
+import { EXPERIENCE_KINDS, Experience } from '../models/Experience';
 import { Skill } from '../models/Skill';
 import { Technology } from '../models/Technology';
 import { ExperienceRepository } from '../repositories/ExperienceRepository';
@@ -11,8 +11,10 @@ export interface Field {
   name: string;
   label: string;
   hint?: string;
-  type: 'text' | 'textarea' | 'number';
+  type: 'text' | 'textarea' | 'number' | 'select';
   required?: boolean;
+  /** The choices, for a 'select' field. */
+  options?: { value: string; label: string }[];
 }
 
 type Values = Record<string, string>;
@@ -52,10 +54,17 @@ const toOrder = (text: string) => Number(text || 0);
 const experience: EntityConfig<Experience> = {
   singular: 'experience entry',
   plural: 'Experience',
-  about: 'Jobs, education, awards and roles. The first three also appear in the Summary theme.',
+  about: 'Roles, education, and awards. Each entry appears under the section you pick for it.',
   fields: [
     { name: 'role', label: 'Role or title', type: 'text', required: true },
     { name: 'organization', label: 'Organization', type: 'text', required: true },
+    {
+      name: 'kind',
+      label: 'Section',
+      hint: 'Which heading it appears under.',
+      type: 'select',
+      options: Object.entries(EXPERIENCE_KINDS).map(([value, label]) => ({ value, label })),
+    },
     {
       name: 'startDate',
       label: 'Start',
@@ -69,14 +78,22 @@ const experience: EntityConfig<Experience> = {
       type: 'text',
     },
     { name: 'description', label: 'Description', hint: 'Optional. A sentence or two.', type: 'textarea' },
+    {
+      name: 'skills',
+      label: 'Skills used',
+      hint: 'Optional. Separate with commas, for example: Next.js, Supabase, GitHub. Shown as small labels under the entry.',
+      type: 'text',
+    },
     order,
   ],
   repository: (db) => new ExperienceRepository(db),
   title: (entry) => entry.role,
-  detail: (entry) => [entry.organization, entry.period()].filter(Boolean).join(', '),
+  detail: (entry) => [EXPERIENCE_KINDS[entry.kind], entry.organization, entry.period()].filter(Boolean).join(', '),
   toValues: (entry) => ({
     role: entry.role,
     organization: entry.organization,
+    kind: entry.kind,
+    skills: entry.skills.join(', '),
     startDate: entry.startDate ?? '',
     endDate: entry.endDate ?? '',
     description: entry.description,
@@ -87,6 +104,8 @@ const experience: EntityConfig<Experience> = {
       id,
       role: values.role,
       organization: values.organization,
+      kind: values.kind,
+      skills: values.skills.split(','),
       startDate: values.startDate,
       endDate: values.endDate,
       description: values.description,

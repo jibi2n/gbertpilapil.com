@@ -61,18 +61,26 @@ INSERT INTO skills (name, description, sort_order) VALUES
   ('Mobile development', 'Android apps built with Flutter.', 5),
   ('Interface design', 'Mocking up screens in Figma first, then carrying a brand''s look through to the finished product.', 6);
 
-INSERT INTO experiences (role, organization, start_date, end_date, description, sort_order) VALUES
-  ('Technology and Innovation Intern', 'HYT Foundation (Helping Youth Transcend Foundation Inc.)', '2026-06', '2026-08', 'Developed a learning management system for HYT Global Institute on Cloudflare Pages, Supabase and Cloudflare R2, and built five QR-based registration and booking systems for partner companies. Wrote infrastructure proposals for the five-floor HYT Business Center and led a small team of fellow interns.', 1),
-  ('BS Computer Science, Data Science specialization', 'University of Santo Tomas', NULL, '2027-06', 'Consistent Dean''s Lister. Coursework in data warehousing, machine learning, data analysis and visualization, software engineering, web development, mobile app development and graphics computing.', 2),
-  ('First place, CodeWarts Hackathon', 'UST College of Information and Computing Sciences', '2026-05', '2026-05', 'Led a team of four to build sana.AI in two days: a voice-powered career guidance app for Filipino informal workers without formal credentials.', 3),
-  ('TechDev Staff', 'UST Computer Science Society', NULL, NULL, 'Built the About page for Save Sierra Madre, the society''s petition and publications site for the Save Sierra Madre Network Alliance.', 4),
-  ('Hackathon participant', 'BPI DataWave, GCash ImaGnation and Hackfest', '2025', '2025', '', 5);
+-- kind is 'experience', 'education' or 'award'. skills is one per line.
+INSERT INTO experiences (role, organization, kind, start_date, end_date, description, skills, sort_order) VALUES
+  ('Technology and Innovation Intern', 'HYT Foundation (Helping Youth Transcend Foundation Inc.)', 'experience', '2026-06', '2026-08', 'Developed a learning management system for HYT Global Institute on Cloudflare Pages, Supabase and Cloudflare R2, and built five QR-based registration and booking systems for partner companies. Wrote infrastructure proposals for the five-floor HYT Business Center and led a small team of fellow interns.', 'Next.js
+TypeScript
+Supabase
+Cloudflare (Pages, R2)
+GitHub', 1),
+  ('BS Computer Science, Data Science specialization', 'University of Santo Tomas', 'education', NULL, '2027-06', 'Consistent Dean''s Lister. Coursework in data warehousing, machine learning, data analysis and visualization, software engineering, web development, mobile app development and graphics computing.', '', 2),
+  ('First place, CodeWarts Hackathon', 'UST College of Information and Computing Sciences', 'award', '2026-05', '2026-05', 'Led a team of four to build sana.AI in two days: a voice-powered career guidance app for Filipino informal workers without formal credentials.', '', 3),
+  ('TechDev Staff', 'UST Computer Science Society', 'experience', NULL, NULL, 'Built the About page for Save Sierra Madre, the society''s petition and publications site for the Save Sierra Madre Network Alliance.', 'Next.js
+React
+TypeScript
+Tailwind CSS', 4),
+  ('Hackathon participant', 'BPI DataWave, GCash ImaGnation and Hackfest', 'award', '2025', '2025', '', '', 5);
 
 INSERT INTO projects (slug, title, summary, description, image_url, live_url, repo_url, featured, sort_order) VALUES
   ('sana-ai', 'sana.AI',
    'A voice-powered career guidance app that turns spoken work stories into skills assessments and TESDA certification roadmaps, for workers without formal credentials.',
    'First place at the UST CICS CodeWarts Hackathon. I led a team of four, built the AI pipeline and designed the initial UI.',
-   NULL, NULL, 'https://github.com/jibi2n/Git-Gud---CodeWarts-Hackathon-', 1, 1),
+   '/projects/sana-ai.webp', NULL, 'https://github.com/jibi2n/Git-Gud---CodeWarts-Hackathon-', 1, 1),
   ('dollys-closet', 'Dolly''s Closet',
    'A live online store catalog for a local ukay-ukay clothing store, with filters, the brand''s identity built into the design, and inventory and order management behind it.',
    'Fully responsive storefront with a Supabase-backed inventory and order system, real-time updates and secure login.',
@@ -80,7 +88,7 @@ INSERT INTO projects (slug, title, summary, description, image_url, live_url, re
   ('shopzada-data-warehouse', 'ShopZada Data Warehouse',
    'ETL pipeline and Kimball star-schema warehouse for a multi-department e-commerce dataset, with Power BI dashboards on top.',
    'Data warehousing capstone. I designed the hybrid ETL pipeline, wrote the data cleaning scripts and tracked history with SCD Type 2.',
-   NULL, NULL, 'https://github.com/n4t5Uuu/dwh_finalproject_3CSC_group_Lakers-Showtime', 1, 3),
+   '/projects/shopzada-data-warehouse.webp', NULL, 'https://github.com/n4t5Uuu/dwh_finalproject_3CSC_group_Lakers-Showtime', 1, 3),
   ('pawsfolio', 'pAWSfolio',
    'A shared showcase where AWS Builders - UST members post what they built, then browse, bump and comment on each other''s work.',
    'Built for the AWS Builders - UST developer assessment. Every component is hand-written, with no templates or UI kits.',
@@ -88,7 +96,7 @@ INSERT INTO projects (slug, title, summary, description, image_url, live_url, re
   ('digimon-pets', 'Digimon Pets for VS Code',
    'A VS Code extension that puts Digimon in your sidebar, where they react to your coding activity.',
    'Hobby project inspired by vscode-pets and vscode-pokemon.',
-   NULL, NULL, 'https://github.com/jibi2n/Digimon-Pets-for-VS-Code', 1, 6),
+   '/projects/digimon-pets.webp', NULL, 'https://github.com/jibi2n/Digimon-Pets-for-VS-Code', 1, 6),
   ('pomodoro-app', 'Pomodoro App',
    'A simple timer app for Android, built with Flutter.',
    'Team final project for an applications development course.',

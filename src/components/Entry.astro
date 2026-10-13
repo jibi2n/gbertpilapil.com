@@ -1,0 +1,26 @@
+---
+// One experience, education or award entry in the landing view.
+import type { Experience } from '../lib/models/Experience';
+
+interface Props {
+  entry: Experience;
+}
+
+const { entry } = Astro.props;
+---
+
+<article class="entry">
+  <div class="entry-head">
+    <h3>{entry.role}</h3>
+    {entry.period() && <span class="entry-when">{entry.period()}</span>}
+  </div>
+  <p class="entry-sub">{entry.organization}</p>
+  {entry.description && <p class="entry-text">{entry.description}</p>}
+  {
+    entry.skills.length > 0 && (
+      <ul class="tags" aria-label="Skills used">
+        {entry.skills.map((skill) => <li class="tag">{skill}</li>)}
+      </ul>
+    )
+  }
+</article>

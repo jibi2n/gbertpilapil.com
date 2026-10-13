@@ -216,7 +216,8 @@ const modeToggle = document.querySelector<HTMLButtonElement>('.mode-toggle')!;
 
 function setMode(dark: boolean) {
   root.dataset.mode = dark ? 'dark' : 'light';
-  modeToggle.setAttribute('aria-pressed', String(dark));
+  // The button names what a click will do, and its icon shows the same.
+  modeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
   try {
     localStorage.setItem('mode', root.dataset.mode);
   } catch {
@@ -224,7 +225,7 @@ function setMode(dark: boolean) {
   }
 }
 
-modeToggle.setAttribute('aria-pressed', String(root.dataset.mode === 'dark'));
+modeToggle.setAttribute('aria-label', root.dataset.mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
 modeToggle.addEventListener('click', () => {
   const dark = root.dataset.mode !== 'dark';
   // Without view transitions (or with motion off) the colors simply fade.

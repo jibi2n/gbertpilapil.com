@@ -20,7 +20,7 @@ if (!isNew && !existing) return Astro.redirect('/admin');
 // The saved values, or blanks. After a failed save: what was typed.
 let values: Record<string, string> = existing
   ? config.toValues(existing)
-  : Object.fromEntries(config.fields.map((field) => [field.name, field.type === 'number' ? '0' : '']));
+  : Object.fromEntries(config.fields.map((field) => [field.name, field.type === 'number' ? '0' : (field.options?.[0]?.value ?? '')]));
 let error = '';
 
 if (Astro.request.method === 'POST') {
@@ -66,6 +66,14 @@ const heading = isNew ? `New ${config.singular}` : `Edit ${config.title(existing
           {field.hint && <span class="hint">{field.hint}</span>}
           {field.type === 'textarea' ? (
             <textarea name={field.name} required={field.required}>{values[field.name]}</textarea>
+          ) : field.type === 'select' ? (
+            <select name={field.name}>
+              {field.options?.map((option) => (
+                <option value={option.value} selected={values[field.name] === option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           ) : (
             <input
               type={field.type}

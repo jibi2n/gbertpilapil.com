@@ -1,5 +1,5 @@
 ---
-import type { Experience } from '../lib/models/Experience';
+import { EXPERIENCE_KINDS, type Experience, type ExperienceKind } from '../lib/models/Experience';
 
 interface Props {
   experiences: Experience[];
@@ -7,23 +7,47 @@ interface Props {
 }
 
 const { experiences, emptyMessage } = Astro.props;
+
+// Roles first, then Education, then Awards and activities, each under its own heading.
+const groups = (Object.keys(EXPERIENCE_KINDS) as ExperienceKind[])
+  .map((kind) => ({ kind, heading: EXPERIENCE_KINDS[kind], entries: experiences.filter((entry) => entry.kind === kind) }))
+  .filter((group) => group.entries.length > 0);
 ---
 
 <section id="experience" class="section">
   <h2 class="display heading section-head" data-reveal>Experience</h2>
   {experiences.length === 0 && <p class="small">{emptyMessage}</p>}
-  <ol data-reveal-group>
-    {
-      experiences.map((experience) => (
-        <li class="xp grid-12">
-          <p class="xp-period small">{experience.period()}</p>
-          <div class="xp-role">
-            <h3 class="subheading">{experience.role}</h3>
-            <p class="mt-1">{experience.organization}</p>
-          </div>
-          <p class="xp-desc prose">{experience.description}</p>
-        </li>
-      ))
-    }
-  </ol>
+  {
+    groups.map((group) => (
+      <>
+        {/* The first group needs no label: the section heading already says "Experience". */}
+        {group.kind !== 'experience' && (
+          <h3 class="subheading xp-group" data-reveal>
+            {group.heading}
+          </h3>
+        )}
+        <ol data-reveal-group>
+          {group.entries.map((entry) => (
+            <li class="xp grid-12">
+              <p class="xp-period small">{entry.period()}</p>
+              <div class="xp-role">
+                <h3 class="subheading">{entry.role}</h3>
+                <p class="mt-1">{entry.organization}</p>
+              </div>
+              <div class="xp-desc">
+                <p class="prose">{entry.description}</p>
+                {entry.skills.length > 0 && (
+                  <ul class="tags" aria-label="Skills used">
+                    {entry.skills.map((skill) => (
+                      <li class="tag">{skill}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </>
+    ))
+  }
 </section>
