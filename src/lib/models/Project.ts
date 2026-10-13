@@ -14,6 +14,8 @@ export interface ProjectData {
   liveUrl?: string | null;
   repoUrl?: string | null;
   featured?: boolean;
+  /** Appears on the Projects page. Showcased projects appear there regardless. */
+  listed?: boolean;
   sortOrder?: number;
   /** Technology names. Each must exist in the technologies table. */
   technologies?: readonly string[];
@@ -31,6 +33,7 @@ export class Project {
   readonly liveUrl: string | null;
   readonly repoUrl: string | null;
   readonly featured: boolean;
+  readonly listed: boolean;
   readonly sortOrder: number;
   readonly technologies: readonly string[];
 
@@ -50,6 +53,7 @@ export class Project {
     this.liveUrl = optionalUrl(data.liveUrl, 'Live site address');
     this.repoUrl = optionalUrl(data.repoUrl, 'Code address');
     this.featured = data.featured ?? false;
+    this.listed = data.listed ?? true;
     this.sortOrder = sortOrder(data.sortOrder);
     this.technologies = [...(data.technologies ?? [])];
   }

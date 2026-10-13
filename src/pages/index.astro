@@ -23,18 +23,22 @@ import { TechnologyRepository } from '../lib/repositories/TechnologyRepository';
 export const prerender = false;
 
 let projects: Project[] = [];
+let listedCount = 0;
 let experiences: ExperienceModel[] = [];
 let skills: Skill[] = [];
 let stack = new Map<string, Technology[]>();
 let emptyMessage = 'Nothing here yet.';
 
 try {
-  [projects, experiences, skills, stack] = await Promise.all([
+  let listed: Project[];
+  [projects, listed, experiences, skills, stack] = await Promise.all([
     new ProjectRepository(env.DB).listFeatured(),
+    new ProjectRepository(env.DB).listListed(),
     new ExperienceRepository(env.DB).list(),
     new SkillRepository(env.DB).list(),
     new TechnologyRepository(env.DB).listByCategory(),
   ]);
+  listedCount = listed.length;
 } catch (error) {
   // The rest of the page is still worth showing if the database is down.
   console.error('Could not load content from D1', error);
@@ -53,7 +57,7 @@ try {
   <div class="full-view">
     <Intro />
     <About />
-    <Projects projects={projects} emptyMessage={emptyMessage} />
+    <Projects projects={projects} moreCount={listedCount - projects.length} emptyMessage={emptyMessage} />
     <Experience experiences={experiences} emptyMessage={emptyMessage} />
     <Skills skills={skills} emptyMessage={emptyMessage} />
     <TechStack stack={stack} emptyMessage={emptyMessage} />

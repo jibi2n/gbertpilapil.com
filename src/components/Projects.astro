@@ -1,49 +1,32 @@
 ---
 import type { Project } from '../lib/models/Project';
+import ProjectCard from './ProjectCard.astro';
 
 interface Props {
+  /** The showcased projects. */
   projects: Project[];
+  /** How many more are on the Projects page. The "View more" link shows when this is above zero. */
+  moreCount: number;
   emptyMessage: string;
 }
 
-const { projects, emptyMessage } = Astro.props;
+const { projects, moreCount, emptyMessage } = Astro.props;
 ---
 
 <section id="projects" class="section">
   <h2 class="display heading section-head" data-reveal>Selected projects</h2>
   {projects.length === 0 && <p class="small">{emptyMessage}</p>}
   <div class="projects" data-reveal-group>
-    {
-      projects.map((project) => (
-        <article class="project">
-          {/* The picture and the title both open the detail panel (see ProjectPanels.astro). */}
-          {project.imageUrl ? (
-            <button type="button" class="media is-pending" data-project-open={project.slug} tabindex="-1" aria-hidden="true">
-              <img src={project.imageUrl} alt="" width="1280" height="800" loading="lazy" decoding="async" />
-            </button>
-          ) : (
-            <button type="button" class="media cover" data-project-open={project.slug} tabindex="-1" aria-hidden="true">
-              <span class="display">{project.title}</span>
-            </button>
-          )}
-          <ul class="project-tech small" aria-label="Built with">
-            {project.technologies.map((name) => <li>{name}</li>)}
-          </ul>
-          <h3 class="subheading project-title">
-            <button type="button" data-project-open={project.slug} aria-haspopup="dialog">
-              {project.title}
-            </button>
-          </h3>
-          <p class="prose mt-3">{project.summary}</p>
-          <p class="project-links">
-            <button type="button" class="link" data-project-open={project.slug} aria-haspopup="dialog">
-              Read what I did
-            </button>
-            {project.liveUrl && <a class="link" href={project.liveUrl}>Visit the live site</a>}
-            {project.repoUrl && <a class="link" href={project.repoUrl}>View the code</a>}
-          </p>
-        </article>
-      ))
-    }
+    {projects.map((project) => <ProjectCard project={project} />)}
   </div>
+  {/* The Projects page is reached only from here; it is not in the top bar. */}
+  {
+    moreCount > 0 && (
+      <p class="projects-more" data-reveal>
+        <a class="button button-quiet" href="/projects">
+          View more projects
+        </a>
+      </p>
+    )
+  }
 </section>

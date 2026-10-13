@@ -19,6 +19,7 @@ export class ProjectRepository extends Repository<Project> {
       liveUrl: row.live_url as string | null,
       repoUrl: row.repo_url as string | null,
       featured: row.featured === 1,
+      listed: row.listed === 1,
       sortOrder: row.sort_order as number,
       technologies,
     });
@@ -36,6 +37,7 @@ export class ProjectRepository extends Repository<Project> {
       live_url: project.liveUrl,
       repo_url: project.repoUrl,
       featured: project.featured ? 1 : 0,
+      listed: project.listed ? 1 : 0,
       sort_order: project.sortOrder,
     };
   }
@@ -59,6 +61,11 @@ export class ProjectRepository extends Repository<Project> {
 
   listFeatured(): Promise<Project[]> {
     return this.query('WHERE featured = 1');
+  }
+
+  /** Everything for the Projects page: listed projects, plus showcased ones whatever their setting. */
+  listListed(): Promise<Project[]> {
+    return this.query('WHERE listed = 1 OR featured = 1');
   }
 
   override async create(project: Project): Promise<Project> {

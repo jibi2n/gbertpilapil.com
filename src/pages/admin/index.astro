@@ -59,8 +59,8 @@ const notice = notices[Astro.url.searchParams.get('done') ?? ''];
     <a class="button" href="/admin/projects/new">Add a project</a>
   </div>
   <p class="hint">
-    Projects marked "Showcased" appear on the home page, lowest order number first. The first three also appear in
-    the Summary theme.
+    "Showcased" projects appear on the home page, lowest order number first, and the first three also appear in the
+    Summary theme. "Listed" projects appear on the Projects page behind "View more projects".
   </p>
   <table class="admin-table">
     <thead>
@@ -68,6 +68,7 @@ const notice = notices[Astro.url.searchParams.get('done') ?? ''];
         <th class="number">Order</th>
         <th>Project</th>
         <th>Showcased</th>
+        <th>Listed</th>
         <th>Picture</th>
         <th><span class="sr-only">Actions</span></th>
       </tr>
@@ -79,6 +80,7 @@ const notice = notices[Astro.url.searchParams.get('done') ?? ''];
             <td class="number">{project.sortOrder}</td>
             <td>{project.title}</td>
             <td>{project.featured ? 'Yes' : 'No'}</td>
+            <td>{project.listed || project.featured ? 'Yes' : 'No'}</td>
             <td>{project.imageUrl ? 'Yes' : 'No'}</td>
             <td>
               <a class="link" href={`/admin/projects/${project.id}`}>

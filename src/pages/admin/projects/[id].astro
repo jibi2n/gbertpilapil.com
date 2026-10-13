@@ -37,6 +37,7 @@ let values = {
   liveUrl: existing?.liveUrl ?? '',
   repoUrl: existing?.repoUrl ?? '',
   featured: existing?.featured ?? true,
+  listed: existing?.listed ?? true,
   sortOrder: String(existing?.sortOrder ?? 0),
   technologies: [...(existing?.technologies ?? [])],
 };
@@ -62,6 +63,7 @@ if (Astro.request.method === 'POST') {
     liveUrl: text('liveUrl'),
     repoUrl: text('repoUrl'),
     featured: form.get('featured') === 'on',
+    listed: form.get('listed') === 'on',
     sortOrder: text('sortOrder'),
     technologies: form.getAll('technologies').map(String),
   };
@@ -80,6 +82,7 @@ if (Astro.request.method === 'POST') {
         liveUrl: values.liveUrl,
         repoUrl: values.repoUrl,
         featured: values.featured,
+        listed: values.listed,
         sortOrder: Number(values.sortOrder || 0),
         technologies: values.technologies,
       });
@@ -227,6 +230,15 @@ const heading = isNew ? 'Add a project' : `Edit ${existing!.title}`;
         <input type="checkbox" name="featured" checked={values.featured} />
         Showcase on the home page
       </label>
+      <span class="hint">The three with the lowest order numbers also appear in the Summary theme.</span>
+      <label class="check" style="margin-top: 0.9rem">
+        <input type="checkbox" name="listed" checked={values.listed} />
+        Show on the Projects page
+      </label>
+      <span class="hint">
+        The page behind "View more projects". Showcased projects always appear there. Untick both to keep a project
+        stored but not public.
+      </span>
     </div>
 
     <label class="field">

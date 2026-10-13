@@ -48,6 +48,10 @@ test('seeded projects load with their technologies, featured ones in order', asy
   expect(featured[0].detailParagraphs).toHaveLength(2);
   expect(featured[0].log).toHaveLength(4);
   expect((await projects.list()).length).toBeGreaterThan(featured.length);
+
+  // The Projects page shows the showcased ones plus anything marked as listed.
+  const listed = await projects.listListed();
+  expect(listed.map((p) => p.slug)).toEqual(expect.arrayContaining(['sana-ai', 'pomodoro-app', 'mokuteki']));
 });
 
 test('a project can be created, updated and deleted', async () => {
@@ -64,6 +68,11 @@ test('a project can be created, updated and deleted', async () => {
   expect(created.id).not.toBeNull();
   expect(created.technologies).toEqual(['Rust']);
   expect(created.featured).toBe(false);
+  expect(created.listed).toBe(true);
+
+  // Unlisted and not showcased: stored, but off the Projects page.
+  await projects.update(new Project({ ...created, listed: false }));
+  expect((await projects.listListed()).map((p) => p.slug)).not.toContain('test-project');
   expect(created.log).toEqual(['Did one thing', 'Did another thing']);
 
   const updated = await projects.update(
