@@ -1,17 +1,17 @@
 /** Text that is about me rather than a list. Lists (projects, experience, skills, tech) live in the database. */
 export const site = {
   name: 'Gbert O. Pilapil',
-  title: 'Gbert O. Pilapil | Software and data developer',
+  title: 'Gbert O. Pilapil | Aspiring Software and Data Engineer',
   description:
     'Portfolio of Gbert O. Pilapil, a computer science student at the University of Santo Tomas, specializing mainly in software engineering and data science.',
   /** Typed out one at a time under the name: "I'm a ...". Each should read naturally after "a". */
-  roles: ['Full-stack Developer', 'UI/UX Designer', 'Computer ScienceStudent', 'Data Scientist', 'AI & Automation Enthusiast', 'Researcher'],
+  roles: ['Full-stack Developer', 'UI/UX Designer', 'Computer Science Student', 'Data Scientist', 'AI & Automation Enthusiast', 'Researcher'],
   location: 'Quezon City, Philippines',
   /** The line under the name in the Summary theme: what you are, in a few words. */
   headline: 'Software and data developer',
   /** The pitch at the top of the Summary theme. Keep it to two or three sentences. */
   summary:
-    "Fourth-year computer science student at the University of Santo Tomas, specializing in data science, and a consistent Dean's Lister. I've shipped applications with different teams, most recently as a Technology and Innovation Intern at HYT Foundation, and I'm deeply interested in AI.",
+    "Hi I am an aspiring Software Engineer or Data Scientist. I enjoy building things and learning new technologies. I am very interested in AI and automation, and I am always looking for ways to expand my skills and knowledge. Most of my experience is in building web applications (mostly full stack), but I can also work with data and other stuff.",
   tagline: 'I build and create software and data solutions, from ideas to production, and from raw data to insights',
   about: {
     statement:
