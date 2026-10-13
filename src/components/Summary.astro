@@ -1,0 +1,90 @@
+---
+// The short version of the site for employers: a mini resume on one page.
+// Shown instead of the full page while the "summary" theme is active.
+import type { Experience } from '../lib/models/Experience';
+import type { Project } from '../lib/models/Project';
+import type { Skill } from '../lib/models/Skill';
+import { site } from '../site';
+import ThemeDots from './ThemeDots.astro';
+
+interface Props {
+  /** The few projects worth leading with. */
+  projects: Project[];
+  /** Education and the headline achievement. */
+  highlights: Experience[];
+  skills: Skill[];
+}
+
+const { projects, highlights, skills } = Astro.props;
+---
+
+<section class="summary" aria-label="Summary">
+  <div class="summary-top" data-theme-swipe>
+    <div class="summary-head" data-intro>
+      <p class="intro-aside">Hi, I'm</p>
+      <ThemeDots />
+    </div>
+    <h1 class="display summary-name" data-intro>{site.name}</h1>
+    <p class="summary-lede" data-intro>{site.summary}</p>
+    <p class="summary-actions" data-intro>
+      <a class="button" href="/resume">View my resume</a>
+      <a class="button button-quiet" href={`mailto:${site.email}`}>Email me</a>
+      <button type="button" class="link" data-set-theme="professional">See the full site</button>
+    </p>
+  </div>
+
+  <div class="grid-12 summary-grid" data-intro>
+    <div class="summary-main">
+      <h2 class="summary-label">Top projects</h2>
+      <ul>
+        {
+          projects.map((project) => (
+            <li class="summary-item">
+              <h3 class="subheading">
+                <button type="button" data-project-open={project.slug} aria-haspopup="dialog">
+                  {project.title}
+                </button>
+              </h3>
+              <p class="prose">{project.summary}</p>
+              <p class="small">{project.technologies.join(', ')}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="summary-side">
+      <h2 class="summary-label">Experience and education</h2>
+      <ul>
+        {
+          highlights.map((item) => (
+            <li class="summary-item">
+              <h3 class="subheading">{item.role}</h3>
+              <p>{item.organization}</p>
+              <p class="small">{item.period()}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <h2 class="summary-label">What I do</h2>
+      <ul class="stack-list summary-item">
+        {skills.map((skill) => <li class="chip">{skill.name}</li>)}
+      </ul>
+
+      <h2 class="summary-label">Contact</h2>
+      <ul class="summary-contact summary-item">
+        <li><a class="link" href={`mailto:${site.email}`}>{site.email}</a></li>
+        {
+          site.links.slice(0, 2).map((link) => (
+            <li>
+              <a class="link" href={link.href}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>

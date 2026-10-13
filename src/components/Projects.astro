@@ -16,24 +16,29 @@ const { projects, emptyMessage } = Astro.props;
     {
       projects.map((project) => (
         <article class="project">
+          {/* The picture and the title both open the detail panel (see ProjectPanels.astro). */}
           {project.imageUrl ? (
-            <a class="media is-pending" href={project.primaryUrl} tabindex="-1" aria-hidden="true">
+            <button type="button" class="media is-pending" data-project-open={project.slug} tabindex="-1" aria-hidden="true">
               <img src={project.imageUrl} alt="" width="1280" height="800" loading="lazy" decoding="async" />
-            </a>
+            </button>
           ) : (
-            <a class="media cover" href={project.primaryUrl} tabindex="-1" aria-hidden="true">
+            <button type="button" class="media cover" data-project-open={project.slug} tabindex="-1" aria-hidden="true">
               <span class="display">{project.title}</span>
-            </a>
+            </button>
           )}
           <ul class="project-tech small" aria-label="Built with">
             {project.technologies.map((name) => <li>{name}</li>)}
           </ul>
           <h3 class="subheading project-title">
-            {project.primaryUrl ? <a href={project.primaryUrl}>{project.title}</a> : project.title}
+            <button type="button" data-project-open={project.slug} aria-haspopup="dialog">
+              {project.title}
+            </button>
           </h3>
           <p class="prose mt-3">{project.summary}</p>
-          {project.description && <p class="prose small mt-2">{project.description}</p>}
           <p class="project-links">
+            <button type="button" class="link" data-project-open={project.slug} aria-haspopup="dialog">
+              Read what I did
+            </button>
             {project.liveUrl && <a class="link" href={project.liveUrl}>Visit the live site</a>}
             {project.repoUrl && <a class="link" href={project.repoUrl}>View the code</a>}
           </p>

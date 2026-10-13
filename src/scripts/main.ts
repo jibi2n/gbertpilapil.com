@@ -3,13 +3,19 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
+// This script runs on every page. Pieces that only exist on the home page
+// (the theme pickers, the typed line) are skipped when they aren't there.
+
 const root = document.documentElement;
 const motion = root.classList.contains('motion');
+let lenis: Lenis | null = null;
 
 /* ---------- The name spans its container edge to edge ---------- */
 
 function fitText() {
   for (const el of document.querySelectorAll<HTMLElement>('[data-fit]')) {
+    // Hidden (the Summary theme hides the big intro): nothing to measure yet.
+    if (el.offsetWidth === 0) continue;
     const available = el.parentElement!.clientWidth;
     // Measure at a known size, then scale. The element is exactly as wide as its text.
     el.style.fontSize = '100px';
@@ -23,21 +29,30 @@ const fitObserver = new ResizeObserver(fitText);
 for (const el of document.querySelectorAll('[data-fit]')) fitObserver.observe(el.parentElement!);
 document.fonts.addEventListener('loadingdone', fitText);
 
-/* ---------- Theme slider ---------- */
+/* ---------- Themes ---------- */
 
-const range = document.querySelector<HTMLInputElement>('#theme-range')!;
-const themeName = document.querySelector<HTMLOutputElement>('.theme-name')!;
-const themes: { id: string; label: string; fonts: string[] }[] = JSON.parse(range.dataset.themes!);
-const lastStop = themes.length - 1;
+const themes: { id: string; label: string; fonts: string[] }[] = JSON.parse(document.body.dataset.themes!);
+// A page can have several pickers (the summary and the intro each have one).
+const dotGroups = [...document.querySelectorAll<HTMLElement>('.theme-dots')].map((group) => ({
+  group,
+  dots: [...group.querySelectorAll<HTMLButtonElement>('.theme-dot')],
+}));
+const swipeAreas = [...document.querySelectorAll<HTMLElement>('[data-theme-swipe]')];
 let current = Math.max(0, themes.findIndex((theme) => theme.id === root.dataset.theme));
 
-function showTheme(index: number) {
-  themeName.value = themes[index].label;
-  range.setAttribute('aria-valuetext', themes[index].label);
+function showTheme() {
+  for (const name of document.querySelectorAll('.theme-name')) name.textContent = themes[current].label;
+  for (const { dots } of dotGroups) {
+    dots.forEach((dot, i) => {
+      dot.setAttribute('aria-checked', String(i === current));
+      dot.tabIndex = i === current ? 0 : -1;
+    });
+  }
 }
 
+/** Switches theme. Going past either end wraps around to the other. */
 function setTheme(index: number) {
-  index = Math.min(lastStop, Math.max(0, index));
+  index = (index + themes.length) % themes.length;
   if (index === current) return;
   current = index;
   root.dataset.theme = themes[index].id;
@@ -46,45 +61,242 @@ function setTheme(index: number) {
   } catch {
     // Private browsing: the theme just won't be remembered.
   }
-  showTheme(index);
+  showTheme();
   fitText();
+  // The Summary theme swaps which sections exist, so the page height changes.
+  requestAnimationFrame(() => {
+    setUpReveals();
+    ScrollTrigger.refresh();
+    lenis?.resize();
+  });
 }
 
-/** Glides the disk to its theme's stop after a drag or key press. */
-function settle() {
-  gsap.to(range, { value: current * 100, duration: motion ? 0.25 : 0, ease: 'power2.out', overwrite: true });
+showTheme();
+
+// Dots: click one, or use the arrow keys while one is focused.
+for (const { group, dots } of dotGroups) {
+  dots.forEach((dot, i) => dot.addEventListener('click', () => setTheme(i)));
+  group.addEventListener('keydown', (event) => {
+    const step: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+    if (!(event.key in step)) return;
+    event.preventDefault();
+    setTheme(current + step[event.key]);
+    dots[current].focus();
+  });
 }
 
-range.value = String(current * 100);
-showTheme(current);
+// Arrows either side of the dots.
+for (const arrow of document.querySelectorAll<HTMLElement>('[data-theme-step]')) {
+  arrow.addEventListener('click', () => setTheme(current + Number(arrow.dataset.themeStep)));
+}
 
-range.addEventListener('input', () => setTheme(Math.round(Number(range.value) / 100)));
-range.addEventListener('change', settle);
-range.addEventListener('keydown', (event) => {
-  const step: Record<string, number> = {
-    ArrowRight: current + 1,
-    ArrowUp: current + 1,
-    ArrowLeft: current - 1,
-    ArrowDown: current - 1,
-    Home: 0,
-    End: lastStop,
-  };
-  if (!(event.key in step)) return;
-  event.preventDefault();
-  setTheme(step[event.key]);
-  settle();
-});
+// Buttons that jump straight to one theme, like "See the full site".
+for (const button of document.querySelectorAll<HTMLElement>('[data-set-theme]')) {
+  button.addEventListener('click', () => {
+    setTheme(themes.findIndex((theme) => theme.id === button.dataset.setTheme));
+    window.scrollTo(0, 0);
+  });
+}
 
-// Fetch the other themes' fonts as soon as someone reaches for the slider,
+// Left and right arrow keys, while the top of the page is on screen and nothing else wants them.
+if (dotGroups.length > 0) {
+  document.addEventListener('keydown', (event) => {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    if ((event.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
+    if (window.scrollY > window.innerHeight * 0.6) return;
+    setTheme(current + (event.key === 'ArrowRight' ? 1 : -1));
+  });
+}
+
+// Swipe with a finger (or pen) on the top section. Every DRAG_STEP pixels of
+// sideways travel moves one theme along, so a long swipe can pass through several.
+// A mouse doesn't drag the page; it uses the arrows, dots or keys instead.
+const DRAG_STEP = 70;
+let dragX: number | null = null;
+let wheelTravel = 0;
+let wheelReadyAt = 0;
+
+// Fetch the other themes' fonts as soon as someone reaches for the top section,
 // so the first switch doesn't flash a fallback font.
 function preloadThemeFonts() {
   for (const theme of themes) {
     for (const font of theme.fonts) document.fonts.load(`1em "${font}"`);
   }
 }
-range.addEventListener('pointerenter', preloadThemeFonts, { once: true });
-range.addEventListener('focus', preloadThemeFonts, { once: true });
-range.addEventListener('touchstart', preloadThemeFonts, { once: true, passive: true });
+
+for (const area of swipeAreas) {
+  area.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'mouse' || (event.target as HTMLElement).closest('a, button')) return;
+    dragX = event.clientX;
+  });
+  // Sideways scrolling on a trackpad or tilt wheel does the same.
+  area.addEventListener(
+    'wheel',
+    (event) => {
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      event.preventDefault();
+      if (performance.now() < wheelReadyAt) return;
+      wheelTravel += event.deltaX;
+      if (Math.abs(wheelTravel) < DRAG_STEP) return;
+      setTheme(current + (wheelTravel > 0 ? 1 : -1));
+      wheelTravel = 0;
+      // One flick of a trackpad sends a long tail of events; ignore it.
+      wheelReadyAt = performance.now() + 700;
+    },
+    { passive: false },
+  );
+  area.addEventListener('pointerenter', preloadThemeFonts, { once: true });
+  area.addEventListener('touchstart', preloadThemeFonts, { once: true, passive: true });
+}
+window.addEventListener('pointermove', (event) => {
+  if (dragX === null) return;
+  const moved = event.clientX - dragX;
+  if (Math.abs(moved) < DRAG_STEP) return;
+  setTheme(current + (moved < 0 ? 1 : -1));
+  dragX = event.clientX;
+});
+function endDrag() {
+  dragX = null;
+}
+window.addEventListener('pointerup', endDrag);
+window.addEventListener('pointercancel', endDrag);
+
+/* ---------- "I'm a ..." typed out under the name ---------- */
+
+const typed = document.querySelector<HTMLElement>('.typed');
+const roles: string[] = typed ? JSON.parse(typed.dataset.roles!) : [];
+
+// With motion turned off the first word simply stays put.
+if (typed && motion && roles.length > 1) {
+  let role = 0;
+  let length = roles[0].length;
+  let deleting = true;
+
+  const tick = () => {
+    length += deleting ? -1 : 1;
+    typed.textContent = roles[role].slice(0, length);
+    let delay = deleting ? 45 : 95;
+    if (!deleting && length === roles[role].length) {
+      // Finished typing: hold the word, then start deleting it.
+      deleting = true;
+      delay = 1700;
+    } else if (deleting && length === 0) {
+      // Finished deleting: move to the next word.
+      deleting = false;
+      role = (role + 1) % roles.length;
+      delay = 350;
+    }
+    setTimeout(tick, delay);
+  };
+  // Let the intro animation finish and the first word be read before it starts.
+  setTimeout(tick, 3200);
+}
+
+/* ---------- Mascot: click for his tip, drag him anywhere ---------- */
+
+const mascot = document.querySelector<HTMLElement>('.mascot')!;
+const mascotButton = mascot.querySelector<HTMLButtonElement>('.mascot-btn')!;
+const bubble = mascot.querySelector<HTMLElement>('.mascot-bubble')!;
+
+function setBubble(open: boolean, remember = true) {
+  bubble.hidden = !open;
+  mascotButton.setAttribute('aria-expanded', String(open));
+  if (!remember) return;
+  try {
+    localStorage.setItem('mascot-tip', open ? 'open' : 'closed');
+  } catch {
+    // Private browsing: the choice just won't be remembered.
+  }
+}
+
+/** He looks toward the middle of the screen, and his bubble opens toward where there is room. */
+function faceCenter() {
+  const box = mascot.getBoundingClientRect();
+  mascot.classList.toggle('is-left', box.left + box.width / 2 < root.clientWidth / 2);
+  mascot.classList.toggle('is-top', box.top < 180);
+}
+
+function moveMascot(left: number, top: number) {
+  const box = mascot.getBoundingClientRect();
+  mascot.style.left = `${Math.min(Math.max(0, left), root.clientWidth - box.width)}px`;
+  mascot.style.top = `${Math.min(Math.max(0, top), window.innerHeight - box.height)}px`;
+  mascot.style.right = mascot.style.bottom = 'auto';
+  faceCenter();
+}
+
+let savedTip: string | null = null;
+try {
+  savedTip = localStorage.getItem('mascot-tip');
+} catch {
+  // Private browsing: start with the tip showing.
+}
+// His tip is about switching themes, so it starts closed on pages with no picker.
+if (dotGroups.length === 0) setBubble(false, false);
+else setBubble(savedTip !== 'closed');
+faceCenter();
+// The tip tucks itself away after a few seconds so it doesn't sit on top of the
+// page. Clicking him brings it back. (Not remembered: it shows again next visit.)
+const tipTimer = setTimeout(() => setBubble(false, false), 9000);
+
+let grab: { x: number; y: number; left: number; top: number; moved: boolean } | null = null;
+let justDragged = false;
+
+mascotButton.addEventListener('pointerdown', (event) => {
+  const box = mascot.getBoundingClientRect();
+  grab = { x: event.clientX, y: event.clientY, left: box.left, top: box.top, moved: false };
+  mascotButton.setPointerCapture(event.pointerId);
+});
+mascotButton.addEventListener('pointermove', (event) => {
+  if (!grab) return;
+  const dx = event.clientX - grab.x;
+  const dy = event.clientY - grab.y;
+  // A few pixels of wobble is still a click, not a drag.
+  if (!grab.moved && Math.hypot(dx, dy) < 6) return;
+  grab.moved = true;
+  moveMascot(grab.left + dx, grab.top + dy);
+});
+function release() {
+  justDragged = grab?.moved ?? false;
+  grab = null;
+}
+mascotButton.addEventListener('pointerup', release);
+mascotButton.addEventListener('pointercancel', release);
+mascotButton.addEventListener('click', () => {
+  // The browser fires a click at the end of a drag; that one shouldn't toggle the tip.
+  if (justDragged) {
+    justDragged = false;
+    return;
+  }
+  clearTimeout(tipTimer);
+  setBubble(mascotButton.getAttribute('aria-expanded') !== 'true');
+});
+// Keep him on screen if the window shrinks after he has been moved.
+window.addEventListener('resize', () => {
+  if (mascot.style.left) moveMascot(parseFloat(mascot.style.left), parseFloat(mascot.style.top));
+});
+
+/* ---------- Project detail panels ---------- */
+
+for (const opener of document.querySelectorAll<HTMLElement>('[data-project-open]')) {
+  opener.addEventListener('click', () => {
+    const panel = document.querySelector<HTMLDialogElement>(`#project-${opener.dataset.projectOpen}`);
+    if (!panel) return;
+    panel.showModal();
+    panel.querySelector('.panel-body')!.scrollTop = 0;
+    // The page behind stays put while the panel is open.
+    lenis?.stop();
+  });
+}
+
+for (const panel of document.querySelectorAll<HTMLDialogElement>('dialog.panel')) {
+  panel.addEventListener('click', (event) => {
+    // Close from the button, or from a click on the dimmed area outside the sheet.
+    if (event.target === panel || (event.target as HTMLElement).closest('[data-panel-close]')) panel.close();
+  });
+  // Fires for the button, the Escape key and the dimmed area alike.
+  panel.addEventListener('close', () => lenis?.start());
+}
 
 /* ---------- Image skeletons ---------- */
 
@@ -121,17 +333,21 @@ document.addEventListener('keydown', (event) => {
 
 /* ---------- Motion: smooth scroll, intro sequence, scroll reveals ---------- */
 
-if (motion) {
-  gsap.registerPlugin(ScrollTrigger);
+let revealsReady = false;
 
-  const lenis = new Lenis({ anchors: true });
-  lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add((time) => lenis.raf(time * 1000));
-  gsap.ticker.lagSmoothing(0);
-
-  // Each piece of content rises into place as it scrolls into view. Items that
-  // arrive together (a row of projects, say) follow one another in a quick stagger.
-  const reveals = gsap.utils.toArray<HTMLElement>('[data-reveal], [data-reveal-group] > *');
+/**
+ * Each piece of content rises into place as it scrolls into view. Items that
+ * arrive together (a row of projects, say) follow one another in a quick stagger.
+ * Set up the first time the full site is on screen: while the Summary theme
+ * hides those sections there is nothing to measure.
+ */
+function setUpReveals() {
+  if (!motion || revealsReady) return;
+  const reveals = gsap.utils
+    .toArray<HTMLElement>('[data-reveal], [data-reveal-group] > *')
+    .filter((el) => el.offsetParent !== null);
+  if (reveals.length === 0) return;
+  revealsReady = true;
   gsap.set(reveals, { autoAlpha: 0, y: 56 });
   ScrollTrigger.batch(reveals, {
     start: 'top 92%',
@@ -141,16 +357,36 @@ if (motion) {
   });
 }
 
+// Pages without an intro hand GSAP empty lists; that is expected, not worth a console warning.
+gsap.config({ nullTargetWarn: false });
+
+if (motion) {
+  gsap.registerPlugin(ScrollTrigger);
+
+  lenis = new Lenis({ anchors: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => lenis!.raf(time * 1000));
+  gsap.ticker.lagSmoothing(0);
+
+  setUpReveals();
+}
+
 /** Hides the loading screen (if it is showing) and plays the intro. */
 function start() {
   fitText();
   root.classList.remove('is-loading');
   if (!motion) return;
-  gsap
-    .timeline({ defaults: { ease: 'power4.out' } })
-    .set('[data-intro-line]', { visibility: 'visible' })
-    .from('[data-intro-line]', { yPercent: 110, duration: 1.1, stagger: 0.09 })
-    .fromTo('[data-intro]', { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.1 }, '-=0.6');
+  const timeline = gsap.timeline({ defaults: { ease: 'power4.out' } });
+  const nameLines = gsap.utils.toArray<HTMLElement>('[data-intro-line]');
+  gsap.set(nameLines, { visibility: 'visible' });
+  // The big name only slides up if it is on screen (the Summary theme hides it).
+  const nameShowing = nameLines.some((el) => el.offsetParent !== null);
+  if (nameShowing) timeline.from(nameLines, { yPercent: 110, duration: 1.1, stagger: 0.09 });
+  // Only the pieces actually on screen are staggered; hidden ones just become ready.
+  const pieces = gsap.utils.toArray<HTMLElement>('[data-intro]');
+  const shown = pieces.filter((el) => el.offsetParent !== null || el.classList.contains('mascot'));
+  gsap.set(pieces.filter((el) => !shown.includes(el)), { autoAlpha: 1 });
+  timeline.fromTo(shown, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.1 }, nameShowing ? '-=0.6' : 0);
 }
 
 // Wait for the fonts so the name doesn't jump, but never for long.

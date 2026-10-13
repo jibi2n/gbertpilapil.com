@@ -15,7 +15,9 @@
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
     "db:seed": "wrangler d1 execute DB --local --file=seed.sql",
     "db:seed:remote": "wrangler d1 execute DB --remote --file=seed.sql",
-    "astro": "astro"
+    "astro": "astro",
+    "resume:upload": "wrangler kv key put resume.pdf --path content/resume.pdf --binding FILES --local",
+    "resume:upload:remote": "wrangler kv key put resume.pdf --path content/resume.pdf --binding FILES --remote"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.4",

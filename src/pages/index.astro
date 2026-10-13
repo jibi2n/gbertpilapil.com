@@ -4,8 +4,10 @@ import About from '../components/About.astro';
 import Contact from '../components/Contact.astro';
 import Experience from '../components/Experience.astro';
 import Intro from '../components/Intro.astro';
+import ProjectPanels from '../components/ProjectPanels.astro';
 import Projects from '../components/Projects.astro';
 import Skills from '../components/Skills.astro';
+import Summary from '../components/Summary.astro';
 import TechStack from '../components/TechStack.astro';
 import Layout from '../layouts/Layout.astro';
 import type { Experience as ExperienceModel } from '../lib/models/Experience';
@@ -41,11 +43,19 @@ try {
 ---
 
 <Layout>
-  <Intro />
-  <About />
-  <Projects projects={projects} emptyMessage={emptyMessage} />
-  <Experience experiences={experiences} emptyMessage={emptyMessage} />
-  <Skills skills={skills} emptyMessage={emptyMessage} />
-  <TechStack stack={stack} emptyMessage={emptyMessage} />
-  <Contact />
+  <!-- Shown only in the Summary theme: the short version for employers. -->
+  <Summary projects={projects.slice(0, 3)} highlights={experiences.slice(0, 3)} skills={skills} />
+
+  <!-- The full site, shown in every other theme. -->
+  <div class="full-view">
+    <Intro />
+    <About />
+    <Projects projects={projects} emptyMessage={emptyMessage} />
+    <Experience experiences={experiences} emptyMessage={emptyMessage} />
+    <Skills skills={skills} emptyMessage={emptyMessage} />
+    <TechStack stack={stack} emptyMessage={emptyMessage} />
+    <Contact />
+  </div>
+
+  <ProjectPanels projects={projects} />
 </Layout>

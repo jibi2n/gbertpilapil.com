@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site } from '../site';
+---
+
+<Layout title={`Resume | ${site.name}`}>
+  <section class="section resume">
+    <h1 class="display heading section-head">Resume</h1>
+    <p class="summary-actions">
+      <a class="button" href="/resume.pdf" download="Gbert-Pilapil-Resume.pdf">Download the PDF</a>
+      <a class="link" href="/resume.pdf" target="_blank" rel="noopener">Open it in a new tab</a>
+    </p>
+    <object class="resume-frame" data="/resume.pdf#view=FitH" type="application/pdf" aria-label="Resume document">
+      <p class="small">This browser can't show the PDF on the page. Use the buttons above to open or download it.</p>
+    </object>
+  </section>
+</Layout>

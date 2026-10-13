@@ -68,7 +68,6 @@ a {
 @property --t-accent { syntax: '<color>'; inherits: true; initial-value: #1f44ff; }
 @property --t-link { syntax: '<color>'; inherits: true; initial-value: #1f44ff; }
 @property --t-nav { syntax: '<color>'; inherits: true; initial-value: rgb(241 242 244 / 0.84); }
-@property --t-track { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
 
 html {
   --fade: 0.45s ease;
@@ -80,8 +79,7 @@ html {
     --t-line var(--fade),
     --t-accent var(--fade),
     --t-link var(--fade),
-    --t-nav var(--fade),
-    --t-track var(--fade);
+    --t-nav var(--fade);
 }
 
 /* ---------- Type ---------- */
@@ -159,7 +157,7 @@ html {
   height: var(--nav-h);
   padding: 0 var(--gutter);
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: var(--gutter);
   background: var(--t-nav);
@@ -183,13 +181,21 @@ html {
 }
 
 .nav-links a,
+.nav-resume,
 .nav-menu-btn {
   font-size: 0.95rem;
   text-decoration: none;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-resume:hover {
   color: var(--t-link);
+}
+
+/* The Summary theme has no sections to jump to, so only Resume stays. */
+[data-theme='summary'] .nav-links,
+[data-theme='summary'] .nav-menu-btn {
+  display: none;
 }
 
 .nav-menu-btn {
@@ -232,93 +238,153 @@ html {
   padding: 0.35rem 0;
 }
 
-/* ---------- Theme slider ---------- */
+/* ---------- Theme picker (dots in the intro) ---------- */
 
-.theme-slider {
+.theme-picker {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
-.theme-track {
-  position: relative;
-  /* One stop per theme. */
-  width: calc(var(--stops) * 2.4rem + 0.4rem);
+.theme-dots {
+  display: flex;
+}
+
+/* The button is a comfortable tap target; the dot is drawn inside it. */
+.theme-dot {
+  display: grid;
+  place-items: center;
+  width: 2rem;
   height: 2rem;
-  padding: 0.2rem;
-  border-radius: var(--t-radius-pill);
-  background: var(--t-track);
-  border: 1px solid var(--t-line);
-}
-
-.theme-tick {
-  position: absolute;
-  top: 50%;
-  left: calc(0.2rem + 0.8rem + (100% - 0.4rem - 1.6rem) * var(--i) / (var(--stops) - 1));
-  width: 4px;
-  height: 4px;
-  margin: -2px 0 0 -2px;
   border-radius: 50%;
-  background: var(--t-muted);
-  opacity: 0.6;
+  cursor: pointer;
 }
 
-.theme-range {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 1.6rem;
-  margin: -1px 0 0;
-  appearance: none;
-  background: transparent;
-  border-radius: var(--t-radius-pill);
-  cursor: grab;
-  touch-action: none;
-}
-
-.theme-range:active {
-  cursor: grabbing;
-}
-
-.theme-range::-webkit-slider-runnable-track {
-  height: 1.6rem;
-  background: transparent;
-}
-
-.theme-range::-moz-range-track {
-  height: 1.6rem;
-  background: transparent;
-}
-
-.theme-range::-webkit-slider-thumb {
-  appearance: none;
-  width: 1.6rem;
-  height: 1.6rem;
+.theme-dot::before {
+  content: '';
+  width: 0.6rem;
+  height: 0.6rem;
   border-radius: 50%;
-  background: var(--t-disk);
-  box-shadow: var(--t-disk-shadow);
+  border: 1.5px solid var(--t-ink);
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
 }
 
-.theme-range::-moz-range-thumb {
-  width: 1.6rem;
-  height: 1.6rem;
-  border: 0;
+.theme-dot[aria-checked='true']::before {
+  background: var(--t-ink);
+  transform: scale(1.35);
+}
+
+.theme-arrow {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
-  background: var(--t-disk);
-  box-shadow: var(--t-disk-shadow);
+  cursor: pointer;
+}
+
+.theme-arrow:hover {
+  background: var(--t-line);
+}
+
+.theme-arrow svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .theme-name {
-  display: none;
   min-width: 6.5em;
-  font-size: 0.875rem;
-  color: var(--t-muted);
 }
 
-@media (min-width: 480px) {
-  .theme-name {
-    display: block;
+/* ---------- Mascot (floating guide) ---------- */
+
+.mascot {
+  position: fixed;
+  z-index: 40;
+  /* Starting spot. Dragging him switches to left/top set by the script. */
+  right: var(--gutter);
+  bottom: var(--gutter);
+}
+
+.mascot-btn {
+  display: block;
+  width: clamp(3.75rem, 6vw, 5rem);
+  cursor: grab;
+  touch-action: none;
+  border-radius: 50%;
+}
+
+.mascot-btn:active {
+  cursor: grabbing;
+}
+
+.mascot-btn img {
+  width: 100%;
+  height: auto;
+  filter: var(--t-mascot-filter, none);
+  /* The drawing looks to the right, so mirror it while he sits on the right
+     half of the screen and should be looking left, toward the page. */
+  transform: scaleX(-1);
+  transition: filter 0.45s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.mascot.is-left .mascot-btn img {
+  transform: none;
+}
+
+.mascot-bubble {
+  position: absolute;
+  bottom: calc(100% + 0.6rem);
+  right: 0;
+  width: max-content;
+  max-width: min(16rem, 72vw);
+  padding: 0.7rem 0.9rem;
+  background: var(--t-surface);
+  color: var(--t-ink);
+  border: 1px solid var(--t-line);
+  border-radius: min(var(--t-radius), 1.1rem);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  box-shadow: 0 0.4rem 1.5rem rgb(0 0 0 / 0.14);
+}
+
+.mascot-bubble[hidden] {
+  display: none;
+}
+
+/* His tip matches the device: swiping for touch, arrows for a mouse. */
+.tip-mouse {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tip-touch {
+    display: none;
   }
+
+  .tip-mouse {
+    display: inline;
+  }
+}
+
+/* The bubble opens toward whichever side has room. */
+.mascot.is-left .mascot-bubble {
+  right: auto;
+  left: 0;
+}
+
+.mascot.is-top .mascot-bubble {
+  bottom: auto;
+  top: calc(100% + 0.6rem);
 }
 
 /* ---------- Background decorations (one layer per theme) ---------- */
@@ -354,6 +420,25 @@ footer {
   gap: 2rem;
 }
 
+/* Sideways swipes here change the theme; up and down still scrolls. */
+[data-theme-swipe] {
+  touch-action: pan-y;
+}
+
+/* Leaves room for the mascot, who starts in the bottom right corner: beside
+   the bottom row on wide screens, underneath it on phones. */
+@media (min-width: 700px) {
+  .intro-bottom {
+    padding-right: clamp(4.5rem, 8vw, 7rem);
+  }
+}
+
+@media (max-width: 699px) {
+  .intro {
+    padding-bottom: 10.5rem;
+  }
+}
+
 .intro-row {
   display: flex;
   flex-wrap: wrap;
@@ -362,12 +447,36 @@ footer {
   gap: 1rem var(--gutter);
 }
 
-/* The name fills the width, centered between the top and bottom rows. */
+/* "Hi, I'm", the name, and "I'm a ..." sit together in the middle of the screen. */
+.intro-main {
+  margin-block: auto;
+}
+
+/* The name fills the width. */
 .intro-name {
   /* Clips the name while it slides up on load. */
   overflow: hidden;
   padding-block: 0.06em;
-  margin-block: auto;
+}
+
+/* The lines directly above and below the name. */
+.intro-aside {
+  font-family: var(--t-font-display);
+  font-weight: var(--t-display-weight);
+  font-size: clamp(1.4rem, 2.6vw, 2.75rem);
+  line-height: 1.2;
+}
+
+.caret {
+  margin-left: 0.05em;
+  font-weight: 300;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
 }
 
 /* Sized by script so the name spans its container edge to edge. */
@@ -405,37 +514,186 @@ footer {
   max-width: 28ch;
 }
 
-.intro-hint {
-  max-width: 26ch;
+/* ---------- Summary theme: the short version for employers ---------- */
+
+.summary {
+  display: none;
+  min-height: 100svh;
+  padding: calc(var(--nav-h) + clamp(1.5rem, 4vw, 3.5rem)) var(--gutter) clamp(3rem, 6vw, 5rem);
 }
 
-@media (min-width: 700px) {
-  .intro-hint {
-    text-align: right;
+/* The Summary theme swaps the full site for the summary. */
+[data-theme='summary'] .summary {
+  display: block;
+}
+
+[data-theme='summary'] .full-view {
+  display: none;
+}
+
+.summary-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem var(--gutter);
+}
+
+/* On phones the picker goes above the greeting so "Hi, I'm" stays next to the name. */
+@media (max-width: 699px) {
+  .summary-head {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 1rem;
   }
 }
 
-.mascot {
-  display: none;
-  width: clamp(6rem, 12vw, 11rem);
-  aspect-ratio: 1;
-  margin-left: auto;
-  background: center / contain no-repeat;
+.summary-name {
+  font-size: clamp(2.75rem, 7vw, 6.5rem);
+  margin-top: 0.1em;
+}
+
+.summary-lede {
+  max-width: 58ch;
+  margin-top: 1.25rem;
+  font-size: clamp(1.05rem, 1.4vw, 1.35rem);
+  line-height: 1.45;
+}
+
+.summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.75rem;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.7rem 1.3rem;
+  border: 1px solid var(--t-ink);
+  border-radius: var(--t-radius-pill);
+  background: var(--t-ink);
+  color: var(--t-bg);
+  text-decoration: none;
+}
+
+.button:hover {
+  background: var(--t-link);
+  border-color: var(--t-link);
+}
+
+.button-quiet {
+  background: transparent;
+  color: var(--t-ink);
+}
+
+.button-quiet:hover {
+  color: var(--t-bg);
+}
+
+button.link {
+  cursor: pointer;
+}
+
+.summary-grid {
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  row-gap: 2.5rem;
+}
+
+.summary-main,
+.summary-side {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 900px) {
+  .summary-main {
+    grid-column: 1 / span 7;
+  }
+
+  .summary-side {
+    grid-column: 9 / -1;
+  }
+}
+
+/* Small headings that name each block of the summary. */
+.summary-label {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--t-line);
+  font-size: 0.875rem;
+  color: var(--t-muted);
+}
+
+.summary-item {
+  padding: 1rem 0 1.5rem;
+}
+
+li.summary-item + li.summary-item {
+  padding-top: 0.25rem;
+}
+
+.summary-item .subheading a {
+  text-decoration: none;
+}
+
+.summary-item .subheading a:hover {
+  color: var(--t-link);
+}
+
+.summary-item p {
+  margin-top: 0.35rem;
+}
+
+.summary-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+/* ---------- Resume page ---------- */
+
+.resume {
+  padding-top: calc(var(--nav-h) + clamp(1.5rem, 4vw, 3.5rem));
+}
+
+.resume > * {
+  width: min(100%, 56rem);
+  margin-inline: auto;
+}
+
+.resume .summary-actions {
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+
+/* A letter-shaped window onto the PDF. Wider than this and a page is unreadably large. */
+.resume-frame {
+  display: block;
+  width: min(100%, 56rem);
+  aspect-ratio: 8.5 / 11;
+  border: 1px solid var(--t-line);
+  border-radius: var(--t-radius);
+  background: var(--t-surface);
 }
 
 /* ---------- About ---------- */
 
-.about-statement {
+/* Phones: photo, text, facts stacked. Wide screens: three columns that fill the row. */
+.about-grid {
+  row-gap: 2.5rem;
+}
+
+.about-grid > * {
   grid-column: 1 / -1;
 }
 
-.about-body {
-  grid-column: 1 / -1;
-  margin-top: 2.5rem;
-}
-
-.facts {
-  margin-top: 2.5rem;
+.about-photo {
+  width: min(100%, 15rem);
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--t-radius);
+  background: var(--t-surface);
 }
 
 .facts div {
@@ -446,18 +704,32 @@ footer {
   border-top: 1px solid var(--t-line);
 }
 
+.facts div:last-child {
+  border-bottom: 1px solid var(--t-line);
+}
+
 .facts dt {
   color: var(--t-muted);
 }
 
 @media (min-width: 900px) {
-  .about-statement {
-    grid-column: 1 / span 6;
+  .about-photo {
+    grid-column: 1 / span 3;
+    width: 100%;
   }
 
-  .about-body {
-    grid-column: 8 / -1;
-    margin-top: 0;
+  .about-text {
+    grid-column: 4 / span 5;
+  }
+
+  .about-grid .facts {
+    grid-column: 10 / -1;
+  }
+
+  /* The facts column is narrow here, so each label sits above its value. */
+  .about-grid .facts div {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
   }
 }
 
@@ -500,7 +772,7 @@ footer {
     transform 0.6s ease;
 }
 
-a.media:hover img {
+.media:hover img {
   transform: scale(1.03);
 }
 
@@ -545,18 +817,139 @@ a.media:hover img {
   margin-top: 0.6rem;
 }
 
-.project-title a {
-  text-decoration: none;
+button.media {
+  width: 100%;
+  cursor: pointer;
 }
 
-.project-title a:hover {
+/* Titles that open a panel look like headings, not buttons. */
+.subheading button {
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.subheading button:hover {
   color: var(--t-link);
 }
 
 .project-links {
   display: flex;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
   margin-top: 1rem;
+}
+
+/* ---------- Project detail panel ---------- */
+
+/* A sheet that slides in from the right; full screen on phones. */
+.panel {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(100%, 44rem);
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--t-line);
+  background: var(--t-bg);
+  color: var(--t-ink);
+}
+
+.panel[open] {
+  animation: panel-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.panel::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+@keyframes panel-in {
+  from {
+    transform: translateX(3rem);
+    opacity: 0;
+  }
+}
+
+.panel-body {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.panel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel-top .project-tech {
+  margin-top: 0.6rem;
+}
+
+.panel-close {
+  flex: none;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--t-line);
+  border-radius: var(--t-radius-pill);
+  cursor: pointer;
+}
+
+.panel-close:hover {
+  border-color: var(--t-ink);
+}
+
+.panel-summary {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+.panel-image {
+  width: 100%;
+  height: auto;
+  margin-top: 1.5rem;
+  border-radius: var(--t-radius);
+  border: 1px solid var(--t-line);
+}
+
+.panel-section {
+  margin-top: 2rem;
+}
+
+.panel-section .summary-label {
+  margin-bottom: 1rem;
+}
+
+/* The dev log: a line down the side with a dot per entry. */
+.panel-log {
+  margin-left: 0.3rem;
+  border-left: 1px solid var(--t-line);
+}
+
+.panel-log li {
+  position: relative;
+  padding: 0 0 1.1rem 1.4rem;
+}
+
+.panel-log li:last-child {
+  padding-bottom: 0;
+}
+
+.panel-log li::before {
+  content: '';
+  position: absolute;
+  left: -0.3rem;
+  top: 0.5em;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--t-link);
 }
 
 /* ---------- Experience ---------- */

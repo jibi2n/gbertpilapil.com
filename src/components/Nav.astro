@@ -1,17 +1,18 @@
 ---
 import { site } from '../site';
-import ThemeSlider from './ThemeSlider.astro';
+
+// Links start with "/" so they also work from the resume page.
 ---
 
 <header class="nav">
-  <a href="#top" class="nav-name">{site.name}</a>
-  <ThemeSlider />
+  <a href="/#top" class="nav-name">{site.name}</a>
   <nav class="nav-links" aria-label="Sections">
-    {site.sections.map((section) => <a href={`#${section.id}`}>{section.label}</a>)}
+    {site.sections.map((section) => <a href={`/#${section.id}`}>{section.label}</a>)}
   </nav>
+  <a href="/resume" class="nav-resume">Resume</a>
   <button class="nav-menu-btn" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
 </header>
 
 <nav id="menu" class="menu display" aria-label="Sections" hidden>
-  {site.sections.map((section) => <a href={`#${section.id}`}>{section.label}</a>)}
+  {site.sections.map((section) => <a href={`/#${section.id}`}>{section.label}</a>)}
 </nav>

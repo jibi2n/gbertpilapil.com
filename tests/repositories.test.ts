@@ -42,20 +42,29 @@ test('seeded projects load with their technologies, featured ones in order', asy
     'digimon-pets',
   ]);
   expect(featured[0].technologies).toEqual(
-    expect.arrayContaining(['Next.js', 'Tailwind CSS', 'Python', 'Supabase']),
+    expect.arrayContaining(['Next.js', 'FastAPI', 'Python', 'Whisper', 'Supabase']),
   );
-  expect(featured[0].technologies).toHaveLength(4);
+  expect(featured[0].technologies).toHaveLength(8);
+  expect(featured[0].detailParagraphs).toHaveLength(2);
+  expect(featured[0].log).toHaveLength(4);
   expect((await projects.list()).length).toBeGreaterThan(featured.length);
 });
 
 test('a project can be created, updated and deleted', async () => {
   const projects = new ProjectRepository(db);
   const created = await projects.create(
-    new Project({ slug: 'test-project', title: 'Test', summary: 'A test', technologies: ['Rust'] }),
+    new Project({
+      slug: 'test-project',
+      title: 'Test',
+      summary: 'A test',
+      technologies: ['Rust'],
+      log: ['Did one thing', '  ', 'Did another\nthing'],
+    }),
   );
   expect(created.id).not.toBeNull();
   expect(created.technologies).toEqual(['Rust']);
   expect(created.featured).toBe(false);
+  expect(created.log).toEqual(['Did one thing', 'Did another thing']);
 
   const updated = await projects.update(
     new Project({ ...created, title: 'Renamed', featured: true, technologies: ['Python', 'SQL'] }),
@@ -105,7 +114,8 @@ test('experience periods read naturally', () => {
 test('experiences, skills and technologies round-trip', async () => {
   const experiences = new ExperienceRepository(db);
   const seeded = await experiences.list();
-  expect(seeded[0].organization).toBe('University of Santo Tomas');
+  expect(seeded[0].role).toBe('Technology and Innovation Intern');
+  expect(seeded[0].period()).toBe('Jun 2026 – Aug 2026');
   const job = await experiences.create(
     new Experience({ role: 'Intern', organization: 'Acme', startDate: '2026-06', sortOrder: 99 }),
   );
@@ -121,9 +131,27 @@ test('experiences, skills and technologies round-trip', async () => {
   expect([...groups.keys()]).toEqual([
     'Languages',
     'Frameworks and libraries',
-    'Databases and cloud',
-    'DevOps',
+    'Data, cloud and DevOps',
+    'AI',
     'Tools',
   ]);
   expect(groups.get('Languages')![0].name).toBe('Python');
+});
+
+test('the resume store keeps a PDF and rejects anything else', async () => {
+  const { ResumeStore } = await import('../src/lib/ResumeStore');
+  const proxy = await getPlatformProxy<{ FILES: KVNamespace }>({ persist: false });
+  try {
+    const store = new ResumeStore(proxy.env.FILES);
+    expect(await store.get()).toBeNull();
+
+    const pdf = readFileSync('content/resume.pdf');
+    await store.save(pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength) as ArrayBuffer);
+    expect((await store.get())!.byteLength).toBe(pdf.byteLength);
+
+    const notPdf = new TextEncoder().encode('<html>not a resume</html>').buffer as ArrayBuffer;
+    await expect(store.save(notPdf)).rejects.toThrow(ValidationError);
+  } finally {
+    await proxy.dispose();
+  }
 });

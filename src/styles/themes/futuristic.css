@@ -20,9 +20,7 @@
 
   --t-cover-bg: linear-gradient(140deg, #0a1230, #0d1f55);
   --t-cover-ink: #5be9ff;
-  --t-disk: radial-gradient(circle at 35% 30%, #ffffff, #5be9ff 38%, #2b6bff 100%);
-  --t-disk-shadow: 0 0 14px rgb(91 233 255 / 0.8);
-  --t-track: rgb(10 18 48 / 0.9);
+  --t-mascot-filter: drop-shadow(0 0 0.7rem rgb(91 233 255 / 0.75));
   color-scheme: dark;
 }
 

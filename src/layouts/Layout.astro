@@ -1,10 +1,17 @@
 ---
 import '../styles/global.css';
 import Decor from '../components/Decor.astro';
+import Mascot from '../components/Mascot.astro';
 import Nav from '../components/Nav.astro';
 import { site } from '../site';
 import { themes } from '../themes';
 
+interface Props {
+  /** Browser tab title. Defaults to the site title. */
+  title?: string;
+}
+
+const { title = site.title } = Astro.props;
 const themeIds = themes.map((theme) => theme.id);
 ---
 
@@ -13,9 +20,9 @@ const themeIds = themes.map((theme) => theme.id);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{site.title}</title>
+    <title>{title}</title>
     <meta name="description" content={site.description} />
-    <meta property="og:title" content={site.title} />
+    <meta property="og:title" content={title} />
     <meta property="og:description" content={site.description} />
     <meta property="og:type" content="website" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -41,7 +48,7 @@ const themeIds = themes.map((theme) => theme.id);
       })();
     </script>
   </head>
-  <body>
+  <body data-themes={JSON.stringify(themes)}>
     <div class="loader" aria-hidden="true">
       <span class="display subheading">{site.name}</span>
       <span class="loader-bar"></span>
@@ -51,6 +58,7 @@ const themeIds = themes.map((theme) => theme.id);
     <main id="top">
       <slot />
     </main>
+    <Mascot />
     <footer class="footer small">
       <span>© {new Date().getFullYear()} {site.name}</span>
       <span>{site.location}</span>

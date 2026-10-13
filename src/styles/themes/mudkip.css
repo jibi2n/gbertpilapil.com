@@ -20,23 +20,11 @@
 
   --t-cover-bg: #4db1ee;
   --t-cover-ink: #ffffff;
-  /* The disk is Mudkip's face: two eyes, two orange gills. */
-  --t-disk:
-    radial-gradient(circle at 20% 64%, #f58a1f 0 15%, transparent 16%),
-    radial-gradient(circle at 80% 64%, #f58a1f 0 15%, transparent 16%),
-    radial-gradient(circle at 36% 42%, #0e3350 0 7%, transparent 8%),
-    radial-gradient(circle at 64% 42%, #0e3350 0 7%, transparent 8%), #4db1ee;
-  --t-disk-shadow: 0 2px 0 rgb(14 51 80 / 0.25);
-  --t-track: #ffffff;
+  --t-mascot-filter: drop-shadow(0 0.2rem 0 rgb(14 51 80 / 0.22));
 }
 
 [data-theme='mudkip'] .decor-mudkip {
   display: block;
-}
-
-[data-theme='mudkip'] .mascot {
-  display: block;
-  background-image: url('/mudkip/mudkip.webp');
 }
 
 [data-theme='mudkip'] .heading,

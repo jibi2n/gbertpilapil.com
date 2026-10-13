@@ -4,24 +4,35 @@ import { site } from '../site';
 const { about } = site;
 ---
 
+<!-- Three columns on wide screens: photo, text, facts. Stacked on phones. -->
 <section id="about" class="section">
   <h2 class="display heading section-head" data-reveal>About</h2>
-  <div class="grid-12">
-    <p class="subheading about-statement" data-reveal>{about.statement}</p>
-    <div class="about-body" data-reveal>
-      <div class="prose space-y-4">
+  <div class="grid-12 about-grid">
+    <img
+      class="about-photo"
+      src="/gbert-pilapil.webp"
+      alt={`Portrait of ${site.name}`}
+      width="640"
+      height="800"
+      loading="lazy"
+      decoding="async"
+      data-reveal
+    />
+    <div class="about-text" data-reveal>
+      <p class="subheading">{about.statement}</p>
+      <div class="prose space-y-4 mt-6">
         {about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
       </div>
-      <dl class="facts">
-        {
-          about.facts.map((fact) => (
-            <div>
-              <dt>{fact.label}</dt>
-              <dd>{fact.value}</dd>
-            </div>
-          ))
-        }
-      </dl>
     </div>
+    <dl class="facts" data-reveal>
+      {
+        about.facts.map((fact) => (
+          <div>
+            <dt>{fact.label}</dt>
+            <dd>{fact.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
   </div>
 </section>

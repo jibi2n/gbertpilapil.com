@@ -1,0 +1,21 @@
+---
+// The floating guide. Click him to show or hide his tip; drag him anywhere.
+// The chatbot will plug into this same mascot later.
+---
+
+<div class="mascot" data-intro>
+  <!-- Touch screens swipe; mouse users get the arrows. CSS shows the one that applies. -->
+  <p id="mascot-tip" class="mascot-bubble" role="status">
+    <span class="tip-touch">Swipe left or right on the top section to see more themes.</span>
+    <span class="tip-mouse">Use the arrows beside the dots, or your ← → keys, to see more themes.</span>
+  </p>
+  <button
+    type="button"
+    class="mascot-btn"
+    aria-expanded="true"
+    aria-controls="mascot-tip"
+    aria-label="Mudkip guide. Show or hide the tip."
+  >
+    <img src="/mascot/mudkip.webp" alt="" width="256" height="256" draggable="false" />
+  </button>
+</div>

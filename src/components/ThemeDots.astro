@@ -1,0 +1,29 @@
+---
+// The theme picker. It can appear more than once on a page (the intro and the
+// summary each have one); the script keeps every copy in step.
+import { themes } from '../themes';
+---
+
+<div class="theme-picker">
+  <button type="button" class="theme-arrow" data-theme-step="-1" aria-label="Previous theme">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"></path></svg>
+  </button>
+  <div class="theme-dots" role="radiogroup" aria-label="Site theme">
+    {
+      themes.map((theme, i) => (
+        <button
+          type="button"
+          class="theme-dot"
+          role="radio"
+          aria-checked={i === 0 ? 'true' : 'false'}
+          aria-label={theme.label}
+          tabindex={i === 0 ? 0 : -1}
+        />
+      ))
+    }
+  </div>
+  <button type="button" class="theme-arrow" data-theme-step="1" aria-label="Next theme">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5"></path></svg>
+  </button>
+  <span class="theme-name small" aria-hidden="true">{themes[0].label}</span>
+</div>

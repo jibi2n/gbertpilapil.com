@@ -22,6 +22,13 @@
 			"migrations_dir": "migrations"
 		}
 	],
+	// Holds the resume PDF so it can be replaced without a redeploy.
+	"kv_namespaces": [
+		{
+			"binding": "FILES",
+			"id": "07f6b9c93b8c43d78d196727156da034"
+		}
+	],
 	"observability": {
 		"enabled": true
 	}

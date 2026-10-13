@@ -1,0 +1,71 @@
+---
+// One detail panel per project: the longer description and a mini dev log of
+// what I did. Opened by any element with data-project-open="<slug>".
+// These sit outside the sections so they work in every theme, including Summary.
+import type { Project } from '../lib/models/Project';
+
+interface Props {
+  projects: Project[];
+}
+
+const { projects } = Astro.props;
+---
+
+{
+  projects.map((project) => (
+    <dialog class="panel" id={`project-${project.slug}`} aria-labelledby={`project-${project.slug}-title`}>
+      <div class="panel-body" data-lenis-prevent>
+        <div class="panel-top">
+          <ul class="project-tech small" aria-label="Built with">
+            {project.technologies.map((name) => <li>{name}</li>)}
+          </ul>
+          <button type="button" class="panel-close" data-panel-close>
+            Close
+          </button>
+        </div>
+
+        <h2 class="display heading" id={`project-${project.slug}-title`}>
+          {project.title}
+        </h2>
+        <p class="panel-summary">{project.summary}</p>
+
+        {project.imageUrl && (
+          <img class="panel-image" src={project.imageUrl} alt="" width="1280" height="800" loading="lazy" decoding="async" />
+        )}
+
+        {project.detailParagraphs.length > 0 && (
+          <div class="panel-section">
+            <h3 class="summary-label">About the project</h3>
+            <div class="space-y-3">
+              {project.detailParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+            </div>
+          </div>
+        )}
+
+        {project.log.length > 0 && (
+          <div class="panel-section">
+            <h3 class="summary-label">What I did</h3>
+            <ol class="panel-log">
+              {project.log.map((entry) => <li>{entry}</li>)}
+            </ol>
+          </div>
+        )}
+
+        {project.detailParagraphs.length === 0 && project.log.length === 0 && project.description && (
+          <p class="panel-section">{project.description}</p>
+        )}
+
+        {(project.liveUrl || project.repoUrl) && (
+          <p class="summary-actions">
+            {project.liveUrl && <a class="button" href={project.liveUrl}>Visit the live site</a>}
+            {project.repoUrl && (
+              <a class:list={['button', { 'button-quiet': project.liveUrl }]} href={project.repoUrl}>
+                View the code
+              </a>
+            )}
+          </p>
+        )}
+      </div>
+    </dialog>
+  ))
+}
