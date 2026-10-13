@@ -1,0 +1,27 @@
+---
+import type { Technology } from '../lib/models/Technology';
+
+interface Props {
+  stack: Map<string, Technology[]>;
+  emptyMessage: string;
+}
+
+const { stack, emptyMessage } = Astro.props;
+---
+
+<section id="stack" class="section">
+  <h2 class="display heading section-head" data-reveal>Tools I use</h2>
+  {stack.size === 0 && <p class="small">{emptyMessage}</p>}
+  <div data-reveal-group>
+    {
+      [...stack].map(([category, technologies]) => (
+        <div class="stack-row grid-12">
+          <h3 class="stack-cat subheading">{category}</h3>
+          <ul class="stack-list">
+            {technologies.map((technology) => <li class="chip">{technology.name}</li>)}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>

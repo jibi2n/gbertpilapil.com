@@ -1,0 +1,81 @@
+/* AI / Futuristic: deep navy, cyan light, drifting wireframe shapes. */
+[data-theme='futuristic'] {
+  --t-bg: #040817;
+  --t-surface: #0a1230;
+  --t-ink: #e4ecff;
+  --t-muted: #8c9cc4;
+  --t-line: rgb(110 160 255 / 0.22);
+  --t-accent: #5be9ff;
+  --t-on-accent: #03121a;
+  --t-link: #5be9ff;
+  --t-nav: rgb(4 8 23 / 0.72);
+
+  --t-font-display: 'Oxanium Variable', 'Segoe UI', sans-serif;
+  --t-font-body: 'Exo 2 Variable', 'Segoe UI', sans-serif;
+  --t-display-weight: 700;
+  --t-display-tracking: 0.005em;
+  --t-display-case: uppercase;
+  --t-radius: 14px;
+  --t-radius-pill: 999px;
+
+  --t-cover-bg: linear-gradient(140deg, #0a1230, #0d1f55);
+  --t-cover-ink: #5be9ff;
+  --t-disk: radial-gradient(circle at 35% 30%, #ffffff, #5be9ff 38%, #2b6bff 100%);
+  --t-disk-shadow: 0 0 14px rgb(91 233 255 / 0.8);
+  --t-track: rgb(10 18 48 / 0.9);
+  color-scheme: dark;
+}
+
+[data-theme='futuristic'] .decor-futuristic {
+  display: block;
+}
+
+[data-theme='futuristic'] .display {
+  text-shadow: 0 0 2.5rem rgb(91 233 255 / 0.25);
+}
+
+[data-theme='futuristic'] .chip {
+  background: rgb(10 18 48 / 0.6);
+}
+
+.decor-futuristic {
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 0%, rgb(43 107 255 / 0.22), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 0% 100%, rgb(91 233 255 / 0.12), transparent 70%);
+}
+
+.decor-futuristic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgb(160 190 255 / 0.28) 1px, transparent 1.5px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse at 50% 40%, black 10%, transparent 75%);
+}
+
+.shape {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  height: var(--s);
+  color: var(--c, rgb(140 180 255 / 0.55));
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  animation: drift var(--d) ease-in-out infinite alternate;
+}
+
+.shape-solid {
+  fill: rgb(60 110 220 / 0.22);
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(var(--dx, 20px), var(--dy, -40px), 0) rotate(var(--r, 40deg));
+  }
+}

@@ -1,0 +1,27 @@
+---
+import { site } from '../site';
+
+const [firstName, ...rest] = site.name.split(' ');
+---
+
+<section class="intro" aria-label="Introduction">
+  <div class="intro-row small" data-intro>
+    <span>{site.role}</span>
+    <span>{site.location}</span>
+  </div>
+
+  <h1 class="intro-name">
+    <span class="display fit" data-fit>
+      <span class="fit-line" data-intro-line>{firstName}</span>
+      <span class="fit-line" data-intro-line>{rest.join(' ')}</span>
+    </span>
+  </h1>
+
+  <div class="intro-row" data-intro>
+    <p class="intro-tagline">{site.tagline}</p>
+    <div>
+      <div class="mascot" role="img" aria-label="Mudkip waving"></div>
+      <p class="intro-hint small">Drag the disk in the top bar to change how this whole site looks.</p>
+    </div>
+  </div>
+</section>

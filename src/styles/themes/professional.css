@@ -1,0 +1,27 @@
+/* Simple Professional: the default. Quiet, light, edge-to-edge grotesque type. */
+:root,
+[data-theme='professional'] {
+  --t-bg: #f1f2f4;
+  --t-surface: #ffffff;
+  --t-ink: #15171a;
+  --t-muted: #5b616b;
+  --t-line: rgb(21 23 26 / 0.16);
+  --t-accent: #1f44ff;
+  --t-on-accent: #ffffff;
+  --t-link: #1f44ff;
+  --t-nav: rgb(241 242 244 / 0.84);
+
+  --t-font-display: 'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif;
+  --t-font-body: 'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif;
+  --t-display-weight: 500;
+  --t-display-tracking: -0.045em;
+  --t-display-case: none;
+  --t-radius: 2px;
+  --t-radius-pill: 999px;
+
+  --t-cover-bg: #15171a;
+  --t-cover-ink: #f1f2f4;
+  --t-disk: #15171a;
+  --t-disk-shadow: 0 1px 3px rgb(21 23 26 / 0.35);
+  --t-track: #ffffff;
+}

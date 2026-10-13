@@ -1,0 +1,40 @@
+{
+  "name": "gbert-portfolio",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "wrangler types && astro dev",
+    "build": "wrangler types && astro check && astro build",
+    "preview": "wrangler types && astro preview",
+    "deploy": "npm run build && wrangler deploy",
+    "test": "vitest run",
+    "db:migrate": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "db:seed": "wrangler d1 execute DB --local --file=seed.sql",
+    "db:seed:remote": "wrangler d1 execute DB --remote --file=seed.sql",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.3.4",
+    "@fontsource-variable/exo-2": "^5.3.0",
+    "@fontsource-variable/fredoka": "^5.3.0",
+    "@fontsource-variable/nunito": "^5.3.0",
+    "@fontsource-variable/oxanium": "^5.3.0",
+    "@fontsource-variable/schibsted-grotesk": "^5.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.8",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.26",
+    "tailwindcss": "^4.3.3",
+    "wrangler": "^4.149.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^26.6.5",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.4"
+  }
+}

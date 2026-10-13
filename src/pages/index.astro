@@ -1,0 +1,51 @@
+---
+import { env } from 'cloudflare:workers';
+import About from '../components/About.astro';
+import Contact from '../components/Contact.astro';
+import Experience from '../components/Experience.astro';
+import Intro from '../components/Intro.astro';
+import Projects from '../components/Projects.astro';
+import Skills from '../components/Skills.astro';
+import TechStack from '../components/TechStack.astro';
+import Layout from '../layouts/Layout.astro';
+import type { Experience as ExperienceModel } from '../lib/models/Experience';
+import type { Project } from '../lib/models/Project';
+import type { Skill } from '../lib/models/Skill';
+import type { Technology } from '../lib/models/Technology';
+import { ExperienceRepository } from '../lib/repositories/ExperienceRepository';
+import { ProjectRepository } from '../lib/repositories/ProjectRepository';
+import { SkillRepository } from '../lib/repositories/SkillRepository';
+import { TechnologyRepository } from '../lib/repositories/TechnologyRepository';
+
+// Rendered on each request so database edits show up without a rebuild.
+export const prerender = false;
+
+let projects: Project[] = [];
+let experiences: ExperienceModel[] = [];
+let skills: Skill[] = [];
+let stack = new Map<string, Technology[]>();
+let emptyMessage = 'Nothing here yet.';
+
+try {
+  [projects, experiences, skills, stack] = await Promise.all([
+    new ProjectRepository(env.DB).listFeatured(),
+    new ExperienceRepository(env.DB).list(),
+    new SkillRepository(env.DB).list(),
+    new TechnologyRepository(env.DB).listByCategory(),
+  ]);
+} catch (error) {
+  // The rest of the page is still worth showing if the database is down.
+  console.error('Could not load content from D1', error);
+  emptyMessage = "This section couldn't load. Refresh the page to try again.";
+}
+---
+
+<Layout>
+  <Intro />
+  <About />
+  <Projects projects={projects} emptyMessage={emptyMessage} />
+  <Experience experiences={experiences} emptyMessage={emptyMessage} />
+  <Skills skills={skills} emptyMessage={emptyMessage} />
+  <TechStack stack={stack} emptyMessage={emptyMessage} />
+  <Contact />
+</Layout>

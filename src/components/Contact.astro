@@ -1,0 +1,24 @@
+---
+import { site } from '../site';
+---
+
+<section id="contact" class="section">
+  <h2 class="display heading section-head" data-reveal>Get in touch</h2>
+  <p class="prose mb-6" data-reveal>
+    I'm looking for a software engineering or data internship. Email is the fastest way to reach me.
+  </p>
+  <a class="contact-email" href={`mailto:${site.email}`} data-reveal>
+    <span class="display fit" data-fit>{site.email}</span>
+  </a>
+  <ul class="contact-links">
+    {
+      site.links.map((link) => (
+        <li>
+          <a class="link" href={link.href}>
+            {link.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>

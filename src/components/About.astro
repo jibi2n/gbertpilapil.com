@@ -1,0 +1,27 @@
+---
+import { site } from '../site';
+
+const { about } = site;
+---
+
+<section id="about" class="section">
+  <h2 class="display heading section-head" data-reveal>About</h2>
+  <div class="grid-12">
+    <p class="subheading about-statement" data-reveal>{about.statement}</p>
+    <div class="about-body" data-reveal>
+      <div class="prose space-y-4">
+        {about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      <dl class="facts">
+        {
+          about.facts.map((fact) => (
+            <div>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+</section>

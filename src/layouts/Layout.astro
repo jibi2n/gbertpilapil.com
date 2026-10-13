@@ -1,0 +1,63 @@
+---
+import '../styles/global.css';
+import Decor from '../components/Decor.astro';
+import Nav from '../components/Nav.astro';
+import { site } from '../site';
+import { themes } from '../themes';
+
+const themeIds = themes.map((theme) => theme.id);
+---
+
+<!doctype html>
+<html lang="en" data-theme={themeIds[0]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{site.title}</title>
+    <meta name="description" content={site.description} />
+    <meta property="og:title" content={site.title} />
+    <meta property="og:description" content={site.description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Runs before first paint: restores the saved theme so there is no flash,
+         and decides whether to show the loading screen and animations. -->
+    <script is:inline define:vars={{ themeIds }}>
+      (function () {
+        var root = document.documentElement;
+        var saved = null;
+        try {
+          saved = localStorage.getItem('theme');
+        } catch (e) {}
+        root.dataset.theme = themeIds.indexOf(saved) >= 0 ? saved : themeIds[0];
+        root.classList.add('js');
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        root.classList.add('motion');
+        try {
+          if (!sessionStorage.getItem('visited')) {
+            sessionStorage.setItem('visited', '1');
+            root.classList.add('is-loading');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="loader" aria-hidden="true">
+      <span class="display subheading">{site.name}</span>
+      <span class="loader-bar"></span>
+    </div>
+    <Decor />
+    <Nav />
+    <main id="top">
+      <slot />
+    </main>
+    <footer class="footer small">
+      <span>© {new Date().getFullYear()} {site.name}</span>
+      <span>{site.location}</span>
+      <a href="#top">Back to top</a>
+    </footer>
+    <script>
+      import '../scripts/main';
+    </script>
+  </body>
+</html>

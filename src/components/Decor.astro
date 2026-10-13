@@ -1,0 +1,64 @@
+---
+// Background decorations. Each theme shows its own layer (see src/styles/themes).
+// Positions are fixed numbers so the page looks the same on every load.
+const shapes = [
+  { id: 'octa', x: 6, y: 16, s: 7, d: 19, dx: 30, dy: -50, r: 50 },
+  { id: 'cube', x: 22, y: 62, s: 4, d: 24, dx: -20, dy: -30, r: -35, solid: true },
+  { id: 'hexa', x: 36, y: 24, s: 3, d: 17, dx: 25, dy: 40, r: 80 },
+  { id: 'octa', x: 48, y: 74, s: 5, d: 26, dx: -35, dy: -25, r: -60, solid: true },
+  { id: 'hexa', x: 61, y: 12, s: 6, d: 21, dx: 20, dy: 45, r: 30 },
+  { id: 'cube', x: 72, y: 48, s: 8, d: 28, dx: -30, dy: -40, r: 45 },
+  { id: 'octa', x: 84, y: 20, s: 4, d: 18, dx: 15, dy: 35, r: -70, solid: true },
+  { id: 'hexa', x: 90, y: 70, s: 9, d: 30, dx: -40, dy: -20, r: 25 },
+  { id: 'cube', x: 12, y: 84, s: 5, d: 22, dx: 35, dy: -30, r: 60 },
+  { id: 'octa', x: 56, y: 44, s: 2.5, d: 16, dx: -15, dy: 30, r: 90, solid: true },
+];
+
+const bubbles = [
+  { x: 4, s: 1.2, d: 19, delay: 0 },
+  { x: 13, s: 2.4, d: 26, delay: -8 },
+  { x: 24, s: 0.9, d: 17, delay: -3 },
+  { x: 37, s: 1.8, d: 23, delay: -14 },
+  { x: 49, s: 1.1, d: 20, delay: -6 },
+  { x: 60, s: 2.8, d: 29, delay: -19 },
+  { x: 71, s: 1.4, d: 18, delay: -11 },
+  { x: 82, s: 2, d: 24, delay: -2 },
+  { x: 93, s: 1, d: 21, delay: -16 },
+];
+---
+
+<div class="decor" aria-hidden="true">
+  <div class="decor-futuristic">
+    <svg width="0" height="0" style="position:absolute">
+      <symbol id="octa" viewBox="0 0 100 100">
+        <path d="M50 4 92 50 50 96 8 50Z M8 50 50 38 92 50 M50 4v92" />
+      </symbol>
+      <symbol id="cube" viewBox="0 0 100 100">
+        <path d="M18 30 54 14 88 30v40L54 90 18 70Z M18 30 54 46 88 30 M54 46v44" />
+      </symbol>
+      <symbol id="hexa" viewBox="0 0 100 100">
+        <path d="M50 4 90 27v46L50 96 10 73V27Z M50 4v92 M10 27 90 73 M90 27 10 73" />
+      </symbol>
+    </svg>
+    {
+      shapes.map((shape) => (
+        <svg
+          class:list={['shape', { 'shape-solid': shape.solid }]}
+          style={`--x:${shape.x}%; --y:${shape.y}%; --s:${shape.s}rem; --d:${shape.d}s; --dx:${shape.dx}px; --dy:${shape.dy}px; --r:${shape.r}deg`}
+        >
+          <use href={`#${shape.id}`} />
+        </svg>
+      ))
+    }
+  </div>
+  <div class="decor-mudkip">
+    {
+      bubbles.map((bubble) => (
+        <span
+          class="bubble"
+          style={`--x:${bubble.x}%; --s:${bubble.s}rem; --d:${bubble.d}s; --delay:${bubble.delay}s`}
+        />
+      ))
+    }
+  </div>
+</div>

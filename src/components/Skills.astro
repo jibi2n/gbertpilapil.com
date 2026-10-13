@@ -1,0 +1,25 @@
+---
+import type { Skill } from '../lib/models/Skill';
+
+interface Props {
+  skills: Skill[];
+  emptyMessage: string;
+}
+
+const { skills, emptyMessage } = Astro.props;
+---
+
+<section id="skills" class="section">
+  <h2 class="display heading section-head" data-reveal>What I do</h2>
+  {skills.length === 0 && <p class="small">{emptyMessage}</p>}
+  <ul class="skills" data-reveal-group>
+    {
+      skills.map((skill) => (
+        <li class="skill">
+          <h3 class="subheading">{skill.name}</h3>
+          <p>{skill.description}</p>
+        </li>
+      ))
+    }
+  </ul>
+</section>

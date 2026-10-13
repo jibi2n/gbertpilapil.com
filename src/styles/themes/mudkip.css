@@ -1,0 +1,72 @@
+/* Mudkip: pond blues, orange gills, round everything, bubbles. */
+[data-theme='mudkip'] {
+  --t-bg: #ddf1fd;
+  --t-surface: #ffffff;
+  --t-ink: #0e3350;
+  --t-muted: #3f6785;
+  --t-line: rgb(14 51 80 / 0.18);
+  --t-accent: #f58a1f;
+  --t-on-accent: #3a1b00;
+  --t-link: #0b5fa5;
+  --t-nav: rgb(221 241 253 / 0.84);
+
+  --t-font-display: 'Fredoka Variable', 'Trebuchet MS', sans-serif;
+  --t-font-body: 'Nunito Variable', 'Trebuchet MS', sans-serif;
+  --t-display-weight: 600;
+  --t-display-tracking: -0.015em;
+  --t-display-case: none;
+  --t-radius: 28px;
+  --t-radius-pill: 999px;
+
+  --t-cover-bg: #4db1ee;
+  --t-cover-ink: #ffffff;
+  /* The disk is Mudkip's face: two eyes, two orange gills. */
+  --t-disk:
+    radial-gradient(circle at 20% 64%, #f58a1f 0 15%, transparent 16%),
+    radial-gradient(circle at 80% 64%, #f58a1f 0 15%, transparent 16%),
+    radial-gradient(circle at 36% 42%, #0e3350 0 7%, transparent 8%),
+    radial-gradient(circle at 64% 42%, #0e3350 0 7%, transparent 8%), #4db1ee;
+  --t-disk-shadow: 0 2px 0 rgb(14 51 80 / 0.25);
+  --t-track: #ffffff;
+}
+
+[data-theme='mudkip'] .decor-mudkip {
+  display: block;
+}
+
+[data-theme='mudkip'] .mascot {
+  display: block;
+  background-image: url('/mudkip/mudkip.webp');
+}
+
+[data-theme='mudkip'] .heading,
+[data-theme='mudkip'] .fit {
+  color: #0b5fa5;
+}
+
+[data-theme='mudkip'] .chip {
+  background: var(--t-surface);
+  border-color: transparent;
+}
+
+.decor-mudkip {
+  background: linear-gradient(to top, rgb(77 177 238 / 0.28), transparent 45%);
+}
+
+.bubble {
+  position: absolute;
+  left: var(--x);
+  bottom: -12vh;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  border: 2px solid rgb(11 95 165 / 0.28);
+  background: radial-gradient(circle at 30% 28%, rgb(255 255 255 / 0.9) 0 12%, transparent 13%);
+  animation: rise var(--d) linear var(--delay, 0s) infinite;
+}
+
+@keyframes rise {
+  to {
+    transform: translate3d(var(--dx, 3vw), -125vh, 0);
+  }
+}

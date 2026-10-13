@@ -1,0 +1,44 @@
+---
+import type { Project } from '../lib/models/Project';
+
+interface Props {
+  projects: Project[];
+  emptyMessage: string;
+}
+
+const { projects, emptyMessage } = Astro.props;
+---
+
+<section id="projects" class="section">
+  <h2 class="display heading section-head" data-reveal>Selected projects</h2>
+  {projects.length === 0 && <p class="small">{emptyMessage}</p>}
+  <div class="projects" data-reveal-group>
+    {
+      projects.map((project) => (
+        <article class="project">
+          {project.imageUrl ? (
+            <a class="media is-pending" href={project.primaryUrl} tabindex="-1" aria-hidden="true">
+              <img src={project.imageUrl} alt="" width="1280" height="800" loading="lazy" decoding="async" />
+            </a>
+          ) : (
+            <a class="media cover" href={project.primaryUrl} tabindex="-1" aria-hidden="true">
+              <span class="display">{project.title}</span>
+            </a>
+          )}
+          <ul class="project-tech small" aria-label="Built with">
+            {project.technologies.map((name) => <li>{name}</li>)}
+          </ul>
+          <h3 class="subheading project-title">
+            {project.primaryUrl ? <a href={project.primaryUrl}>{project.title}</a> : project.title}
+          </h3>
+          <p class="prose mt-3">{project.summary}</p>
+          {project.description && <p class="prose small mt-2">{project.description}</p>}
+          <p class="project-links">
+            {project.liveUrl && <a class="link" href={project.liveUrl}>Visit the live site</a>}
+            {project.repoUrl && <a class="link" href={project.repoUrl}>View the code</a>}
+          </p>
+        </article>
+      ))
+    }
+  </div>
+</section>
