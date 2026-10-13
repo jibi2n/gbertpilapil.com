@@ -29,3 +29,12 @@ First run on a new machine: `npm install`, `npm run db:migrate`, `npm run db:see
 | A section's layout | `src/components/` and `src/styles/global.css` |
 | Database tables | a new file in `migrations/` |
 | Models and database access | `src/lib/models/` and `src/lib/repositories/` |
+
+## Dashboard
+
+The private dashboard is at `/admin`. It can add, edit and delete projects (with picture upload) and replace the resume.
+
+- **Who gets in:** Cloudflare Access puts a login in front of `/admin` on gbertpilapil.com. The site also checks Access's signed token itself (`src/middleware.ts`, `src/lib/access.ts`), so the workers.dev address can't be used to get around the login.
+- **Settings:** `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD` and `ADMIN_EMAIL` under `vars` in `wrangler.jsonc`. While the first two are empty the dashboard answers "not set up yet" to everyone.
+- **On your own machine:** `npm run dev` skips the login, so `http://localhost:4321/admin` opens directly and edits your local copy of the data.
+- **Undoing a mistake:** the live database can be rolled back to any point in the last 30 days with `npx wrangler d1 time-travel restore gbert-portfolio --timestamp=<when>`.

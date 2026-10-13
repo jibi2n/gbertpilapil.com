@@ -22,7 +22,14 @@
 			"migrations_dir": "migrations"
 		}
 	],
-	// Holds the resume PDF so it can be replaced without a redeploy.
+	// Who may open the dashboard at /admin. The first two come from the Cloudflare
+	// Access application guarding it; while they are empty the dashboard stays locked.
+	"vars": {
+		"ACCESS_TEAM_DOMAIN": "restless-cake-2d95.cloudflareaccess.com",
+		"ACCESS_AUD": "5323d09be3133d6973eb13b114b70a72fb6c700e31af9f07b7883fe7a955299e",
+		"ADMIN_EMAIL": "gbertpilapil12@gmail.com"
+	},
+	// Holds the resume PDF and uploaded project pictures, so they can be replaced without a redeploy.
 	"kv_namespaces": [
 		{
 			"binding": "FILES",

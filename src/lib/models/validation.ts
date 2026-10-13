@@ -20,7 +20,7 @@ export function optionalText(value: unknown): string {
 export function optionalUrl(value: unknown, field: string): string | null {
   if (value === null || value === undefined || value === '') return null;
   if (typeof value !== 'string' || !/^(https?:\/\/|\/)\S+$/.test(value.trim())) {
-    throw new ValidationError(`${field} must be an http(s) URL or a path starting with /`);
+    throw new ValidationError(`${field} must start with https:// or http://`);
   }
   return value.trim();
 }
@@ -37,7 +37,7 @@ export function optionalDate(value: unknown, field: string): string | null {
 export function sortOrder(value: unknown): number {
   if (value === null || value === undefined) return 0;
   if (typeof value !== 'number' || !Number.isInteger(value)) {
-    throw new ValidationError('sortOrder must be a whole number');
+    throw new ValidationError('Order must be a whole number');
   }
   return value;
 }

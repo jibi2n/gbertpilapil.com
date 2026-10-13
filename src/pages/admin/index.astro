@@ -1,0 +1,105 @@
+---
+import { env } from 'cloudflare:workers';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { ResumeStore } from '../../lib/ResumeStore';
+import { ValidationError } from '../../lib/models/validation';
+import { ProjectRepository } from '../../lib/repositories/ProjectRepository';
+
+export const prerender = false;
+
+const resume = new ResumeStore(env.FILES);
+let error = '';
+
+// The resume upload form on this page posts back to it.
+if (Astro.request.method === 'POST') {
+  const file = (await Astro.request.formData()).get('resume');
+  try {
+    if (!(file instanceof File) || file.size === 0) throw new ValidationError('Choose a PDF file first');
+    await resume.save(await file.arrayBuffer());
+    return Astro.redirect('/admin?done=resume');
+  } catch (caught) {
+    if (!(caught instanceof ValidationError)) console.error('Resume upload failed', caught);
+    error = caught instanceof ValidationError ? caught.message : 'The resume could not be saved. Try again.';
+  }
+}
+
+const projects = await new ProjectRepository(env.DB).list();
+const hasResume = (await resume.get()) !== null;
+
+const notices: Record<string, string> = {
+  saved: 'Project saved. It is live on the site now.',
+  deleted: 'Project deleted.',
+  resume: 'Resume replaced. The resume page shows the new file (browsers may take a few minutes to catch up).',
+};
+const notice = notices[Astro.url.searchParams.get('done') ?? ''];
+---
+
+<AdminLayout title="Dashboard">
+  <h1>Dashboard</h1>
+  {notice && <p class="notice" role="status">{notice}</p>}
+  {error && <p class="error" role="alert">{error}</p>}
+
+  <div class="admin-head">
+    <h2 style="margin-top: 0; padding-top: 0; border: 0">Projects</h2>
+    <a class="button" href="/admin/projects/new">Add a project</a>
+  </div>
+  <p class="hint">
+    Projects marked "Showcased" appear on the home page, lowest order number first. The first three also appear in
+    the Summary theme.
+  </p>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th class="number">Order</th>
+        <th>Project</th>
+        <th>Showcased</th>
+        <th>Picture</th>
+        <th><span class="sr-only">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        projects.map((project) => (
+          <tr>
+            <td class="number">{project.sortOrder}</td>
+            <td>{project.title}</td>
+            <td>{project.featured ? 'Yes' : 'No'}</td>
+            <td>{project.imageUrl ? 'Yes' : 'No'}</td>
+            <td>
+              <a class="link" href={`/admin/projects/${project.id}`}>
+                Edit<span class="sr-only"> {project.title}</span>
+              </a>
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  {projects.length === 0 && <p class="hint">No projects yet. Add your first one.</p>}
+
+  <h2>Resume</h2>
+  <p class="hint">
+    {
+      hasResume ? (
+        <>
+          The resume page shows the file you last uploaded.{' '}
+          <a class="link" href="/resume.pdf" target="_blank" rel="noopener">
+            Open the current resume
+          </a>
+        </>
+      ) : (
+        'No resume has been uploaded yet.'
+      )
+    }
+  </p>
+  <form method="post" enctype="multipart/form-data">
+    <label class="field">
+      <span class="field-label">Replace it with a new PDF</span>
+      <span class="hint">PDF only, up to 5 MB. The old file is overwritten.</span>
+      <input type="file" name="resume" accept="application/pdf" required />
+    </label>
+    <p class="form-actions">
+      <button type="submit" class="button">Upload resume</button>
+    </p>
+  </form>
+</AdminLayout>

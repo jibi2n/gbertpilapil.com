@@ -1,0 +1,220 @@
+/* Styles for the private dashboard only. Colors come from the Professional theme. */
+
+.admin-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  padding: 1rem var(--gutter);
+  border-bottom: 1px solid var(--t-line);
+}
+
+.admin-home {
+  font-family: var(--t-font-display);
+  font-weight: var(--t-display-weight);
+  font-size: 1.1rem;
+  text-decoration: none;
+}
+
+/* Forms read best in a column, so the dashboard doesn't stretch edge to edge. */
+.admin {
+  max-width: 62rem;
+  padding: 2rem var(--gutter) 5rem;
+}
+
+.admin h1 {
+  font-family: var(--t-font-display);
+  font-weight: var(--t-display-weight);
+  font-size: 2rem;
+  letter-spacing: -0.03em;
+}
+
+.admin h2 {
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--t-line);
+  font-family: var(--t-font-display);
+  font-weight: var(--t-display-weight);
+  font-size: 1.35rem;
+}
+
+.admin-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.notice,
+.error {
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--t-line);
+  background: var(--t-surface);
+}
+
+.error {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+[data-mode='dark'] .error {
+  border-color: #ff8a80;
+  color: #ff8a80;
+}
+
+/* ---------- Project list ---------- */
+
+.admin-table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.7rem 0.75rem 0.7rem 0;
+  border-bottom: 1px solid var(--t-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-table th {
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: var(--t-muted);
+}
+
+.admin-table .number {
+  width: 4rem;
+}
+
+/* ---------- Forms ---------- */
+
+.field {
+  display: block;
+  margin-top: 1.5rem;
+}
+
+.field-label {
+  display: block;
+  font-weight: 500;
+}
+
+.hint {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.875rem;
+  color: var(--t-muted);
+}
+
+.field input[type='text'],
+.field input[type='url'],
+.field input[type='number'],
+.field textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--t-muted);
+  border-radius: 6px;
+  background: var(--t-surface);
+  color: var(--t-ink);
+}
+
+.field input[type='number'] {
+  width: 7rem;
+}
+
+.field textarea {
+  min-height: 7rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.field textarea.tall {
+  min-height: 12rem;
+}
+
+.field input[type='file'] {
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.field input[readonly] {
+  color: var(--t-muted);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.check input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--t-link);
+}
+
+.tech-group {
+  margin-top: 0.9rem;
+}
+
+.tech-group legend {
+  font-size: 0.875rem;
+  color: var(--t-muted);
+}
+
+.checks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+  gap: 0.4rem 1rem;
+  margin-top: 0.4rem;
+}
+
+.current-image {
+  display: block;
+  width: min(100%, 22rem);
+  height: auto;
+  margin-top: 0.6rem;
+  border: 1px solid var(--t-line);
+  border-radius: 6px;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  margin-top: 2.25rem;
+}
+
+.admin button.button {
+  cursor: pointer;
+}
+
+/* Deleting sits apart from saving, and looks different, so it isn't hit by accident. */
+.danger {
+  margin-top: 3.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--t-line);
+}
+
+.danger button {
+  margin-top: 0.75rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid #c0392b;
+  border-radius: var(--t-radius-pill);
+  color: #c0392b;
+  cursor: pointer;
+}
+
+[data-mode='dark'] .danger button {
+  border-color: #ff8a80;
+  color: #ff8a80;
+}

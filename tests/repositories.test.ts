@@ -155,3 +155,34 @@ test('the resume store keeps a PDF and rejects anything else', async () => {
     await proxy.dispose();
   }
 });
+
+test('the image store keeps pictures and rejects other files', async () => {
+  const { ImageStore } = await import('../src/lib/ImageStore');
+  const proxy = await getPlatformProxy<{ FILES: KVNamespace }>({ persist: false });
+  try {
+    const store = new ImageStore(proxy.env.FILES);
+    const png = readFileSync('public/projects/pawsfolio.webp');
+    const bytes = png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength) as ArrayBuffer;
+
+    const url = await store.save('demo', bytes);
+    expect(url).toMatch(/^\/media\/demo-\d+\.webp$/);
+    const saved = await store.get(url.slice('/media/'.length));
+    expect(saved!.type).toBe('image/webp');
+    expect(saved!.data.byteLength).toBe(bytes.byteLength);
+
+    // Names that could reach outside the image folder are never looked up.
+    expect(await store.get('../resume.pdf')).toBeNull();
+
+    await store.delete(url);
+    expect(await store.get(url.slice('/media/'.length))).toBeNull();
+    // Pictures shipped with the site are not this store's to delete.
+    await store.delete('/projects/pawsfolio.webp');
+
+    const pdf = readFileSync('content/resume.pdf');
+    await expect(
+      store.save('demo', pdf.buffer.slice(pdf.byteOffset, pdf.byteOffset + pdf.byteLength) as ArrayBuffer),
+    ).rejects.toThrow(ValidationError);
+  } finally {
+    await proxy.dispose();
+  }
+});

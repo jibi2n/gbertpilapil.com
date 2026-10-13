@@ -36,19 +36,19 @@ export class Project {
 
   constructor(data: ProjectData) {
     this.id = data.id ?? null;
-    this.slug = requiredText(data.slug, 'slug');
+    this.slug = requiredText(data.slug, 'Short name');
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(this.slug)) {
-      throw new ValidationError('slug must be lowercase letters, numbers and hyphens');
+      throw new ValidationError('Short name must be lowercase letters, numbers and hyphens');
     }
-    this.title = requiredText(data.title, 'title');
-    this.summary = requiredText(data.summary, 'summary');
+    this.title = requiredText(data.title, 'Title');
+    this.summary = requiredText(data.summary, 'One-line summary');
     this.description = optionalText(data.description);
     this.details = optionalText(data.details);
     // Entries are stored one per line, so an entry can't contain a line break itself.
     this.log = (data.log ?? []).map((entry) => entry.replace(/\s+/g, ' ').trim()).filter(Boolean);
-    this.imageUrl = optionalUrl(data.imageUrl, 'imageUrl');
-    this.liveUrl = optionalUrl(data.liveUrl, 'liveUrl');
-    this.repoUrl = optionalUrl(data.repoUrl, 'repoUrl');
+    this.imageUrl = optionalUrl(data.imageUrl, 'Picture address');
+    this.liveUrl = optionalUrl(data.liveUrl, 'Live site address');
+    this.repoUrl = optionalUrl(data.repoUrl, 'Code address');
     this.featured = data.featured ?? false;
     this.sortOrder = sortOrder(data.sortOrder);
     this.technologies = [...(data.technologies ?? [])];

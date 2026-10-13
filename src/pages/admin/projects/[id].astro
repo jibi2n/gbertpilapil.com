@@ -1,0 +1,291 @@
+---
+// Add a project (/admin/projects/new) or edit one (/admin/projects/<id>).
+// The form posts back to this same page.
+import { env } from 'cloudflare:workers';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { ImageStore } from '../../../lib/ImageStore';
+import { Project } from '../../../lib/models/Project';
+import { ValidationError } from '../../../lib/models/validation';
+import { ProjectRepository } from '../../../lib/repositories/ProjectRepository';
+import { TechnologyRepository } from '../../../lib/repositories/TechnologyRepository';
+
+export const prerender = false;
+
+const projects = new ProjectRepository(env.DB);
+const images = new ImageStore(env.FILES);
+
+const isNew = Astro.params.id === 'new';
+const existing = isNew ? null : await projects.findById(Number(Astro.params.id));
+if (!isNew && !existing) return Astro.redirect('/admin');
+
+/** "My Project!" becomes "my-project", for the project's short name. */
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// What the form shows: the saved project, or blanks for a new one. After a
+// failed save it is replaced with what was typed, so nothing has to be retyped.
+let values = {
+  title: existing?.title ?? '',
+  slug: existing?.slug ?? '',
+  summary: existing?.summary ?? '',
+  details: existing?.details ?? '',
+  log: existing?.log.join('\n') ?? '',
+  liveUrl: existing?.liveUrl ?? '',
+  repoUrl: existing?.repoUrl ?? '',
+  featured: existing?.featured ?? true,
+  sortOrder: String(existing?.sortOrder ?? 0),
+  technologies: [...(existing?.technologies ?? [])],
+};
+let error = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const text = (name: string) => String(form.get(name) ?? '').trim();
+
+  if (form.get('_action') === 'delete' && existing) {
+    await projects.delete(existing.id!);
+    await images.delete(existing.imageUrl);
+    return Astro.redirect('/admin?done=deleted');
+  }
+
+  values = {
+    title: text('title'),
+    // The short name is fixed once a project exists; new projects get one from the title.
+    slug: existing?.slug ?? (text('slug') || slugify(text('title'))),
+    summary: text('summary'),
+    details: text('details'),
+    log: text('log'),
+    liveUrl: text('liveUrl'),
+    repoUrl: text('repoUrl'),
+    featured: form.get('featured') === 'on',
+    sortOrder: text('sortOrder'),
+    technologies: form.getAll('technologies').map(String),
+  };
+
+  try {
+    const build = (imageUrl: string | null) =>
+      new Project({
+        id: existing?.id,
+        slug: values.slug,
+        title: values.title,
+        summary: values.summary,
+        description: existing?.description,
+        details: values.details,
+        log: values.log.split('\n'),
+        imageUrl,
+        liveUrl: values.liveUrl,
+        repoUrl: values.repoUrl,
+        featured: values.featured,
+        sortOrder: Number(values.sortOrder || 0),
+        technologies: values.technologies,
+      });
+
+    // Check everything else is valid before storing a new picture.
+    let imageUrl = existing?.imageUrl ?? null;
+    build(imageUrl);
+
+    const upload = form.get('image');
+    if (upload instanceof File && upload.size > 0) {
+      imageUrl = await images.save(values.slug, await upload.arrayBuffer());
+    } else if (form.get('removeImage') === 'on') {
+      imageUrl = null;
+    }
+
+    const project = build(imageUrl);
+    try {
+      if (isNew) await projects.create(project);
+      else await projects.update(project);
+    } catch (caught) {
+      // The save failed, so the picture just uploaded for it is not needed.
+      if (imageUrl !== existing?.imageUrl) await images.delete(imageUrl);
+      throw caught;
+    }
+    // The old picture is no longer used once it has been replaced or removed.
+    if (existing && existing.imageUrl !== imageUrl) await images.delete(existing.imageUrl);
+    return Astro.redirect('/admin?done=saved');
+  } catch (caught) {
+    if (caught instanceof ValidationError) {
+      error = caught.message;
+    } else if (String(caught).includes('UNIQUE')) {
+      error = 'Another project already uses that short name. Change the title or the short name.';
+    } else {
+      console.error('Project save failed', caught);
+      error = 'The project could not be saved. Try again.';
+    }
+  }
+}
+
+const stack = await new TechnologyRepository(env.DB).listByCategory();
+const heading = isNew ? 'Add a project' : `Edit ${existing!.title}`;
+---
+
+<AdminLayout title={heading}>
+  <p><a class="link" href="/admin">Back to the dashboard</a></p>
+  <h1 style="margin-top: 1rem">{heading}</h1>
+  {error && <p class="error" role="alert">{error}</p>}
+
+  <form method="post" enctype="multipart/form-data">
+    <label class="field">
+      <span class="field-label">Title</span>
+      <input type="text" name="title" value={values.title} required maxlength="80" />
+    </label>
+
+    <label class="field">
+      <span class="field-label">Short name</span>
+      <span class="hint">
+        {
+          isNew
+            ? 'Lowercase letters, numbers and hyphens. Leave it empty to make one from the title. It cannot be changed later.'
+            : 'Set when the project was created. It cannot be changed.'
+        }
+      </span>
+      <input type="text" name="slug" value={values.slug} readonly={!isNew} pattern="[a-z0-9]+(-[a-z0-9]+)*" />
+    </label>
+
+    <label class="field">
+      <span class="field-label">One-line summary</span>
+      <span class="hint">Shown on the project's card and at the top of its panel.</span>
+      <textarea name="summary" required maxlength="300">{values.summary}</textarea>
+    </label>
+
+    <label class="field">
+      <span class="field-label">About the project</span>
+      <span class="hint">The longer write-up in the panel. Leave a blank line between paragraphs.</span>
+      <textarea name="details" class="tall">{values.details}</textarea>
+    </label>
+
+    <label class="field">
+      <span class="field-label">What I did</span>
+      <span class="hint">Your dev log. One entry per line.</span>
+      <textarea name="log" class="tall">{values.log}</textarea>
+    </label>
+
+    <fieldset class="field">
+      <legend class="field-label">Built with</legend>
+      {
+        [...stack].map(([category, technologies]) => (
+          <fieldset class="tech-group">
+            <legend>{category}</legend>
+            <div class="checks">
+              {technologies.map((technology) => (
+                <label class="check">
+                  <input
+                    type="checkbox"
+                    name="technologies"
+                    value={technology.name}
+                    checked={values.technologies.includes(technology.name)}
+                  />
+                  {technology.name}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ))
+      }
+    </fieldset>
+
+    <div class="field">
+      <label>
+        <span class="field-label">Picture</span>
+        <span class="hint">
+          A screenshot works best. PNG, JPEG or WebP. Large pictures are shrunk in your browser before they upload.
+        </span>
+        <input type="file" name="image" accept="image/png,image/jpeg,image/webp" />
+      </label>
+      <span class="hint" id="image-note" role="status"></span>
+      {
+        existing?.imageUrl && (
+          <>
+            <img class="current-image" src={existing.imageUrl} alt="Current picture" />
+            <label class="check" style="margin-top: 0.6rem">
+              <input type="checkbox" name="removeImage" />
+              Remove this picture
+            </label>
+          </>
+        )
+      }
+    </div>
+
+    <label class="field">
+      <span class="field-label">Live site address</span>
+      <span class="hint">Optional. Starts with https://</span>
+      <input type="url" name="liveUrl" value={values.liveUrl} placeholder="https://" />
+    </label>
+
+    <label class="field">
+      <span class="field-label">Code address</span>
+      <span class="hint">Optional. Usually the GitHub repository.</span>
+      <input type="url" name="repoUrl" value={values.repoUrl} placeholder="https://" />
+    </label>
+
+    <div class="field">
+      <label class="check">
+        <input type="checkbox" name="featured" checked={values.featured} />
+        Showcase on the home page
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="field-label">Order</span>
+      <span class="hint">Lower numbers come first.</span>
+      <input type="number" name="sortOrder" value={values.sortOrder} step="1" />
+    </label>
+
+    <p class="form-actions">
+      <button type="submit" class="button">{isNew ? 'Add project' : 'Save changes'}</button>
+      <a class="link" href="/admin">Cancel</a>
+    </p>
+  </form>
+
+  {
+    existing && (
+      <form method="post" class="danger" data-confirm={`Delete "${existing.title}"? This cannot be undone from here.`}>
+        <input type="hidden" name="_action" value="delete" />
+        <p class="field-label">Delete this project</p>
+        <p class="hint">Removes it from the site along with its uploaded picture.</p>
+        <button type="submit">Delete project</button>
+      </form>
+    )
+  }
+
+  <script>
+    // Ask before deleting.
+    for (const form of document.querySelectorAll<HTMLFormElement>('form[data-confirm]')) {
+      form.addEventListener('submit', (event) => {
+        if (!confirm(form.dataset.confirm)) event.preventDefault();
+      });
+    }
+
+    // Shrink big pictures before they upload, so the site stays fast. A
+    // screenshot straight off a monitor can be several megabytes; this
+    // brings it down to a web-sized WebP file.
+    const MAX_WIDTH = 1600;
+    const input = document.querySelector<HTMLInputElement>('input[name="image"]');
+    const note = document.querySelector<HTMLElement>('#image-note');
+    input?.addEventListener('change', async () => {
+      const file = input.files?.[0];
+      if (!file || !note) return;
+      try {
+        const bitmap = await createImageBitmap(file);
+        const scale = Math.min(1, MAX_WIDTH / bitmap.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(bitmap.width * scale);
+        canvas.height = Math.round(bitmap.height * scale);
+        canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', 0.82));
+        if (!blob || blob.size >= file.size) return;
+        const swapped = new DataTransfer();
+        swapped.items.add(new File([blob], 'picture.webp', { type: 'image/webp' }));
+        input.files = swapped.files;
+        note.textContent = `Shrunk from ${Math.round(file.size / 1024)} KB to ${Math.round(blob.size / 1024)} KB.`;
+      } catch {
+        // Not something the browser can read as a picture; the server will say so.
+        note.textContent = '';
+      }
+    });
+  </script>
+</AdminLayout>
