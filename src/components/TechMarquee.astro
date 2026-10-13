@@ -1,0 +1,39 @@
+---
+// A single moving row of every technology, with its logo where one exists.
+// The list is printed twice so the loop has no visible seam; the second copy
+// is hidden from screen readers.
+import type { Technology } from '../lib/models/Technology';
+import { techIcon } from '../lib/techIcons';
+
+interface Props {
+  technologies: Technology[];
+}
+
+const { technologies } = Astro.props;
+---
+
+{
+  technologies.length > 0 && (
+    <div class="marquee" role="group" aria-label="Tech stack">
+      <div class="marquee-track">
+        {[false, true].map((isCopy) => (
+          <ul class="marquee-list" aria-hidden={isCopy ? 'true' : undefined}>
+            {technologies.map((technology) => {
+              const path = techIcon(technology.name);
+              return (
+                <li class="marquee-item">
+                  {path && (
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d={path} />
+                    </svg>
+                  )}
+                  {technology.name}
+                </li>
+              );
+            })}
+          </ul>
+        ))}
+      </div>
+    </div>
+  )
+}

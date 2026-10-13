@@ -162,6 +162,31 @@ function endDrag() {
 window.addEventListener('pointerup', endDrag);
 window.addEventListener('pointercancel', endDrag);
 
+/* ---------- Light and dark mode (Professional and Summary themes) ---------- */
+
+const modeToggle = document.querySelector<HTMLButtonElement>('.mode-toggle')!;
+
+function setMode(dark: boolean) {
+  root.dataset.mode = dark ? 'dark' : 'light';
+  modeToggle.setAttribute('aria-pressed', String(dark));
+  try {
+    localStorage.setItem('mode', root.dataset.mode);
+  } catch {
+    // Private browsing: the mode just won't be remembered.
+  }
+}
+
+modeToggle.setAttribute('aria-pressed', String(root.dataset.mode === 'dark'));
+modeToggle.addEventListener('click', () => {
+  const dark = root.dataset.mode !== 'dark';
+  // Without view transitions (or with motion off) the colors simply fade.
+  if (!motion || !document.startViewTransition) return setMode(dark);
+  // The sunrise/sunset itself is CSS: see "Light/dark transition" in global.css.
+  const classes = ['mode-switching', dark ? 'mode-to-dark' : 'mode-to-light'];
+  root.classList.add(...classes);
+  document.startViewTransition(() => setMode(dark)).finished.finally(() => root.classList.remove(...classes));
+});
+
 /* ---------- "I'm a ..." typed out under the name ---------- */
 
 const typed = document.querySelector<HTMLElement>('.typed');

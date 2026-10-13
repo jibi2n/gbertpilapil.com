@@ -24,3 +24,22 @@
   --t-cover-bg: #15171a;
   --t-cover-ink: #f1f2f4;
 }
+
+/* Dark mode for Professional and Summary. The other themes have one look each
+   and ignore data-mode. */
+[data-theme='summary'][data-mode='dark'],
+[data-theme='professional'][data-mode='dark'] {
+  --t-bg: #0f1114;
+  --t-surface: #181b20;
+  --t-ink: #eceef1;
+  --t-muted: #9aa1ad;
+  --t-line: rgb(236 238 241 / 0.16);
+  --t-accent: #8aa4ff;
+  --t-on-accent: #0f1114;
+  --t-link: #9db2ff;
+  --t-nav: rgb(15 17 20 / 0.84);
+
+  --t-cover-bg: #1d2127;
+  --t-cover-ink: #eceef1;
+  color-scheme: dark;
+}

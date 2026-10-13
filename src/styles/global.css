@@ -82,6 +82,63 @@ html {
     --t-nav var(--fade);
 }
 
+/* ---------- Light/dark transition: sunrise and sunset ---------- */
+
+/* Switching to light, the light page rises from the bottom of the screen as a
+   soft-edged circle, like the sun coming up. Switching to dark, the light page
+   sinks back down the same way and leaves the dark one behind. Browsers
+   without view transitions fall back to the plain color fade above. */
+@property --mode-r {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* The page is photographed mid-switch, so the color fade must not run too. */
+html.mode-switching {
+  transition: none;
+}
+
+html.mode-switching::view-transition-old(root),
+html.mode-switching::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html.mode-to-light::view-transition-new(root),
+html.mode-to-dark::view-transition-old(root) {
+  /* Opaque inside the circle, fading out over a wide soft edge. */
+  mask-image: radial-gradient(circle at 50% 100%, #000 calc(var(--mode-r) - 18vmax), transparent var(--mode-r));
+}
+
+html.mode-to-light::view-transition-new(root) {
+  animation: sun-rise 1.2s cubic-bezier(0.45, 0, 0.2, 1) both;
+}
+
+/* Going dark, the outgoing light page is the one on top that shrinks away. */
+html.mode-to-dark::view-transition-old(root) {
+  z-index: 1;
+  animation: sun-set 1.2s cubic-bezier(0.45, 0, 0.2, 1) both;
+}
+
+@keyframes sun-rise {
+  from {
+    --mode-r: 0vmax;
+  }
+  to {
+    --mode-r: 125vmax;
+  }
+}
+
+@keyframes sun-set {
+  from {
+    --mode-r: 125vmax;
+  }
+  to {
+    --mode-r: 0vmax;
+  }
+}
+
 /* ---------- Type ---------- */
 
 .display {
@@ -157,7 +214,9 @@ html {
   height: var(--nav-h);
   padding: 0 var(--gutter);
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr;
+  grid-auto-flow: column;
+  grid-auto-columns: auto;
   align-items: center;
   gap: var(--gutter);
   background: var(--t-nav);
@@ -190,6 +249,65 @@ html {
 .nav-links a:hover,
 .nav-resume:hover {
   color: var(--t-link);
+}
+
+/* Light/dark switch. Only the Professional and Summary themes have two modes. */
+.mode-toggle {
+  display: none;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+[data-theme='summary'] .mode-toggle,
+[data-theme='professional'] .mode-toggle {
+  display: grid;
+}
+
+.mode-toggle:hover {
+  background: var(--t-line);
+}
+
+.mode-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  overflow: visible;
+}
+
+/* The icon is a sun whose rays tuck in while a bite slides across it to make a moon. */
+.mode-toggle .sun-core,
+.mode-toggle .sun-rays,
+.mode-toggle .moon-bite {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.4s ease;
+}
+
+.mode-toggle .sun-core {
+  fill: currentColor;
+}
+
+.mode-toggle .sun-rays {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+[data-mode='dark'] .mode-toggle .sun-core {
+  transform: scale(1.6);
+}
+
+[data-mode='dark'] .mode-toggle .sun-rays {
+  transform: rotate(-90deg) scale(0.4);
+  opacity: 0;
+}
+
+[data-mode='dark'] .mode-toggle .moon-bite {
+  transform: translate(-9px, 3px);
 }
 
 /* The Summary theme has no sections to jump to, so only Resume stays. */
@@ -650,6 +768,70 @@ li.summary-item + li.summary-item {
   gap: 0.5rem 1.5rem;
 }
 
+/* ---------- Tech marquee (Summary theme) ---------- */
+
+/* One row that runs edge to edge and scrolls by on its own. */
+.marquee {
+  margin: clamp(2rem, 4vw, 3.5rem) calc(var(--gutter) * -1) 0;
+  padding: 1rem 0;
+  border-block: 1px solid var(--t-line);
+  overflow: hidden;
+  /* Items fade in and out at the edges instead of being cut off. */
+  mask-image: linear-gradient(to right, transparent, #000 6rem, #000 calc(100% - 6rem), transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  /* The track holds two copies of the list, so sliding it by half loops seamlessly. */
+  animation: marquee 60s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-list {
+  display: flex;
+  flex: none;
+  gap: 2.75rem;
+  padding-right: 2.75rem;
+}
+
+.marquee-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  white-space: nowrap;
+}
+
+.marquee-item svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* With motion turned off it stays still and can be scrolled by hand instead. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    overflow-x: auto;
+  }
+
+  .marquee-list[aria-hidden='true'] {
+    display: none;
+  }
+}
+
+.summary-stack + .summary-grid {
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
 /* ---------- Resume page ---------- */
 
 .resume {
@@ -689,6 +871,7 @@ li.summary-item + li.summary-item {
 
 .about-photo {
   width: min(100%, 15rem);
+  margin-inline: auto;
   height: auto;
   aspect-ratio: 4 / 5;
   object-fit: cover;
@@ -713,23 +896,22 @@ li.summary-item + li.summary-item {
 }
 
 @media (min-width: 900px) {
-  .about-photo {
-    grid-column: 1 / span 3;
-    width: 100%;
+  /* Text on the left, the photo in the middle, facts on the right. */
+  .about-grid > * {
+    grid-row: 1;
   }
 
   .about-text {
-    grid-column: 4 / span 5;
+    grid-column: 1 / span 4;
+  }
+
+  .about-photo {
+    grid-column: 5 / span 4;
+    width: min(100%, 20rem);
   }
 
   .about-grid .facts {
-    grid-column: 10 / -1;
-  }
-
-  /* The facts column is narrow here, so each label sits above its value. */
-  .about-grid .facts div {
-    grid-template-columns: 1fr;
-    gap: 0.15rem;
+    grid-column: 9 / -1;
   }
 }
 
@@ -799,6 +981,7 @@ li.summary-item + li.summary-item {
   padding: clamp(1rem, 1.5vw, 1.5rem);
   background: var(--t-cover-bg);
   color: var(--t-cover-ink);
+  text-align: left;
   text-decoration: none;
 }
 

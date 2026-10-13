@@ -4,7 +4,9 @@
 import type { Experience } from '../lib/models/Experience';
 import type { Project } from '../lib/models/Project';
 import type { Skill } from '../lib/models/Skill';
+import type { Technology } from '../lib/models/Technology';
 import { site } from '../site';
+import TechMarquee from './TechMarquee.astro';
 import ThemeDots from './ThemeDots.astro';
 
 interface Props {
@@ -13,9 +15,11 @@ interface Props {
   /** Education and the headline achievement. */
   highlights: Experience[];
   skills: Skill[];
+  /** Every technology, for the moving strip. */
+  technologies: Technology[];
 }
 
-const { projects, highlights, skills } = Astro.props;
+const { projects, highlights, skills, technologies } = Astro.props;
 ---
 
 <section class="summary" aria-label="Summary">
@@ -31,6 +35,10 @@ const { projects, highlights, skills } = Astro.props;
       <a class="button button-quiet" href={`mailto:${site.email}`}>Email me</a>
       <button type="button" class="link" data-set-theme="professional">See the full site</button>
     </p>
+  </div>
+
+  <div data-intro>
+    <TechMarquee technologies={technologies} />
   </div>
 
   <div class="grid-12 summary-grid" data-intro>

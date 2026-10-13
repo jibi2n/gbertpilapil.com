@@ -44,7 +44,10 @@ try {
 
 <Layout>
   <!-- Shown only in the Summary theme: the short version for employers. -->
-  <Summary projects={projects.slice(0, 3)} highlights={experiences.slice(0, 3)} skills={skills} />
+  <Summary projects={projects.slice(0, 3)} highlights={experiences.slice(0, 3)}
+    skills={skills}
+    technologies={[...stack.values()].flat()}
+  />
 
   <!-- The full site, shown in every other theme. -->
   <div class="full-view">

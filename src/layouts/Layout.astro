@@ -36,6 +36,15 @@ const themeIds = themes.map((theme) => theme.id);
           saved = localStorage.getItem('theme');
         } catch (e) {}
         root.dataset.theme = themeIds.indexOf(saved) >= 0 ? saved : themeIds[0];
+        // Light or dark: the visitor's last choice, else what their device is set to.
+        var mode = null;
+        try {
+          mode = localStorage.getItem('mode');
+        } catch (e) {}
+        if (mode !== 'dark' && mode !== 'light') {
+          mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        root.dataset.mode = mode;
         root.classList.add('js');
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         root.classList.add('motion');
