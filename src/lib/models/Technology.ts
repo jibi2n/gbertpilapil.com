@@ -16,8 +16,8 @@ export class Technology {
 
   constructor(data: TechnologyData) {
     this.id = data.id ?? null;
-    this.name = requiredText(data.name, 'name');
-    this.category = requiredText(data.category, 'category');
+    this.name = requiredText(data.name, 'Name');
+    this.category = requiredText(data.category, 'Category');
     this.sortOrder = sortOrder(data.sortOrder);
   }
 }

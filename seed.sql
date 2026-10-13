@@ -1,5 +1,12 @@
--- Site content. Safe to re-run: it replaces everything.
--- Apply with `npm run db:seed` (local) or `npm run db:seed:remote` (live).
+-- Starting content. Running this file DELETES everything in the database and
+-- replaces it with what is written here.
+--
+-- Local copy (safe, use freely):  npm run db:seed
+-- Live site (destructive):        npm run db:seed:remote:overwrite
+--
+-- The live site is edited from the dashboard at /admin, so this file no longer
+-- matches it. Seeding the live site throws away every dashboard edit. The
+-- overwrite command saves a copy to backups/live.sql first.
 
 DELETE FROM project_technologies;
 DELETE FROM projects;

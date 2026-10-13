@@ -29,7 +29,7 @@ export function optionalUrl(value: unknown, field: string): string | null {
 export function optionalDate(value: unknown, field: string): string | null {
   if (value === null || value === undefined || value === '') return null;
   if (typeof value !== 'string' || !/^\d{4}(-(0[1-9]|1[0-2]))?$/.test(value)) {
-    throw new ValidationError(`${field} must be YYYY or YYYY-MM`);
+    throw new ValidationError(`${field} must be a year (2026) or a year and month (2026-06)`);
   }
   return value;
 }

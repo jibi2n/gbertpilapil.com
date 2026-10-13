@@ -32,3 +32,6 @@ worker-configuration.d.ts
 .playwright-mcp/
 
 docs/
+
+# copies of the live database
+backups/

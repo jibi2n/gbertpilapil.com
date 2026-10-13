@@ -14,10 +14,11 @@
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
     "db:seed": "wrangler d1 execute DB --local --file=seed.sql",
-    "db:seed:remote": "wrangler d1 execute DB --remote --file=seed.sql",
     "astro": "astro",
     "resume:upload": "wrangler kv key put resume.pdf --path content/resume.pdf --binding FILES --local",
-    "resume:upload:remote": "wrangler kv key put resume.pdf --path content/resume.pdf --binding FILES --remote"
+    "resume:upload:remote": "wrangler kv key put resume.pdf --path content/resume.pdf --binding FILES --remote",
+    "db:backup": "node -e \"fs.mkdirSync('backups',{recursive:true})\" && wrangler d1 export DB --remote --output=backups/live.sql",
+    "db:seed:remote:overwrite": "npm run db:backup && wrangler d1 execute DB --remote --file=seed.sql"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.4",

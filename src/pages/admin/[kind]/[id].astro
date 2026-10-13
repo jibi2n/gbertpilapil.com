@@ -1,0 +1,120 @@
+---
+// Add or edit an experience entry, skill or technology:
+// /admin/experience/new, /admin/skills/3, /admin/tech/12 and so on.
+// What each form contains is described in src/lib/admin/entities.ts.
+import { env } from 'cloudflare:workers';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { entities } from '../../../lib/admin/entities';
+import { ValidationError } from '../../../lib/models/validation';
+
+export const prerender = false;
+
+const config = entities[Astro.params.kind ?? ''];
+if (!config) return Astro.redirect('/admin');
+
+const repository = config.repository(env.DB);
+const isNew = Astro.params.id === 'new';
+const existing = isNew ? null : await repository.findById(Number(Astro.params.id));
+if (!isNew && !existing) return Astro.redirect('/admin');
+
+// The saved values, or blanks. After a failed save: what was typed.
+let values: Record<string, string> = existing
+  ? config.toValues(existing)
+  : Object.fromEntries(config.fields.map((field) => [field.name, field.type === 'number' ? '0' : '']));
+let error = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+
+  if (form.get('_action') === 'delete' && existing) {
+    await repository.delete(existing.id!);
+    return Astro.redirect('/admin?done=deleted');
+  }
+
+  values = Object.fromEntries(config.fields.map((field) => [field.name, String(form.get(field.name) ?? '').trim()]));
+  try {
+    const entity = config.build(values, existing?.id ?? null);
+    if (isNew) await repository.create(entity);
+    else await repository.update(entity);
+    return Astro.redirect('/admin?done=saved');
+  } catch (caught) {
+    if (caught instanceof ValidationError) {
+      error = caught.message;
+    } else if (String(caught).includes('UNIQUE')) {
+      error = `Another ${config.singular} already uses that name.`;
+    } else {
+      console.error(`Saving a ${config.singular} failed`, caught);
+      error = 'It could not be saved. Try again.';
+    }
+  }
+}
+
+const suggestions = config.suggestions ? config.suggestions(await repository.list()) : {};
+const heading = isNew ? `New ${config.singular}` : `Edit ${config.title(existing)}`;
+---
+
+<AdminLayout title={heading}>
+  <p><a class="link" href="/admin">Back to the dashboard</a></p>
+  <h1 style="margin-top: 1rem">{heading}</h1>
+  {error && <p class="error" role="alert">{error}</p>}
+
+  <form method="post">
+    {
+      config.fields.map((field) => (
+        <label class="field">
+          <span class="field-label">{field.label}</span>
+          {field.hint && <span class="hint">{field.hint}</span>}
+          {field.type === 'textarea' ? (
+            <textarea name={field.name} required={field.required}>{values[field.name]}</textarea>
+          ) : (
+            <input
+              type={field.type}
+              name={field.name}
+              value={values[field.name]}
+              required={field.required}
+              step={field.type === 'number' ? '1' : undefined}
+              list={suggestions[field.name] ? `suggest-${field.name}` : undefined}
+              autocomplete="off"
+            />
+          )}
+          {suggestions[field.name] && (
+            <datalist id={`suggest-${field.name}`}>
+              {suggestions[field.name].map((option) => (
+                <option value={option} />
+              ))}
+            </datalist>
+          )}
+        </label>
+      ))
+    }
+
+    <p class="form-actions">
+      <button type="submit" class="button">{isNew ? `Add ${config.singular}` : 'Save changes'}</button>
+      <a class="link" href="/admin">Cancel</a>
+    </p>
+  </form>
+
+  {
+    existing && (
+      <form
+        method="post"
+        class="danger"
+        data-confirm={`Delete "${config.title(existing)}"? This cannot be undone from here.`}
+      >
+        <input type="hidden" name="_action" value="delete" />
+        <p class="field-label">Delete this {config.singular}</p>
+        <p class="hint">Removes it from the site. {config.deleteNote}</p>
+        <button type="submit">Delete {config.singular}</button>
+      </form>
+    )
+  }
+
+  <script>
+    // Ask before deleting.
+    for (const form of document.querySelectorAll<HTMLFormElement>('form[data-confirm]')) {
+      form.addEventListener('submit', (event) => {
+        if (!confirm(form.dataset.confirm)) event.preventDefault();
+      });
+    }
+  </script>
+</AdminLayout>

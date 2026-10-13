@@ -1,6 +1,7 @@
 ---
 import { env } from 'cloudflare:workers';
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { entities } from '../../lib/admin/entities';
 import { ResumeStore } from '../../lib/ResumeStore';
 import { ValidationError } from '../../lib/models/validation';
 import { ProjectRepository } from '../../lib/repositories/ProjectRepository';
@@ -24,11 +25,19 @@ if (Astro.request.method === 'POST') {
 }
 
 const projects = await new ProjectRepository(env.DB).list();
+// Experience, skills and tech stack: one list each, described in src/lib/admin/entities.ts.
+const sections = await Promise.all(
+  Object.entries(entities).map(async ([kind, config]) => ({
+    kind,
+    config,
+    items: await config.repository(env.DB).list(),
+  })),
+);
 const hasResume = (await resume.get()) !== null;
 
 const notices: Record<string, string> = {
-  saved: 'Project saved. It is live on the site now.',
-  deleted: 'Project deleted.',
+  saved: 'Saved. It is live on the site now.',
+  deleted: 'Deleted.',
   resume: 'Resume replaced. The resume page shows the new file (browsers may take a few minutes to catch up).',
 };
 const notice = notices[Astro.url.searchParams.get('done') ?? ''];
@@ -39,8 +48,14 @@ const notice = notices[Astro.url.searchParams.get('done') ?? ''];
   {notice && <p class="notice" role="status">{notice}</p>}
   {error && <p class="error" role="alert">{error}</p>}
 
+  <p class="admin-jump">
+    <a class="link" href="#projects">Projects</a>
+    {sections.map(({ kind, config }) => <a class="link" href={`#${kind}`}>{config.plural}</a>)}
+    <a class="link" href="#resume">Resume</a>
+  </p>
+
   <div class="admin-head">
-    <h2 style="margin-top: 0; padding-top: 0; border: 0">Projects</h2>
+    <h2 id="projects" style="margin-top: 0; padding-top: 0; border: 0">Projects</h2>
     <a class="button" href="/admin/projects/new">Add a project</a>
   </div>
   <p class="hint">
@@ -77,7 +92,50 @@ const notice = notices[Astro.url.searchParams.get('done') ?? ''];
   </table>
   {projects.length === 0 && <p class="hint">No projects yet. Add your first one.</p>}
 
-  <h2>Resume</h2>
+  {
+    sections.map(({ kind, config, items }) => (
+      <>
+        <div class="admin-head admin-section">
+          <h2 id={kind} style="margin-top: 0; padding-top: 0; border: 0">
+            {config.plural}
+          </h2>
+          <a class="button button-quiet" href={`/admin/${kind}/new`}>
+            Add {config.singular}
+          </a>
+        </div>
+        <p class="hint">{config.about}</p>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th class="number">Order</th>
+              <th>Name</th>
+              <th>Details</th>
+              <th>
+                <span class="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr>
+                <td class="number">{item.sortOrder}</td>
+                <td>{config.title(item)}</td>
+                <td class="small">{config.detail(item)}</td>
+                <td>
+                  <a class="link" href={`/admin/${kind}/${item.id}`}>
+                    Edit<span class="sr-only"> {config.title(item)}</span>
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {items.length === 0 && <p class="hint">Nothing here yet.</p>}
+      </>
+    ))
+  }
+
+  <h2 id="resume">Resume</h2>
   <p class="hint">
     {
       hasResume ? (

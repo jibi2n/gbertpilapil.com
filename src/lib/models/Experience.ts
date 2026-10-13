@@ -30,10 +30,10 @@ export class Experience {
 
   constructor(data: ExperienceData) {
     this.id = data.id ?? null;
-    this.role = requiredText(data.role, 'role');
-    this.organization = requiredText(data.organization, 'organization');
-    this.startDate = optionalDate(data.startDate, 'startDate');
-    this.endDate = optionalDate(data.endDate, 'endDate');
+    this.role = requiredText(data.role, 'Role or title');
+    this.organization = requiredText(data.organization, 'Organization');
+    this.startDate = optionalDate(data.startDate, 'Start');
+    this.endDate = optionalDate(data.endDate, 'End');
     this.description = optionalText(data.description);
     this.sortOrder = sortOrder(data.sortOrder);
   }

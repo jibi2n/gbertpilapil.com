@@ -16,7 +16,7 @@ export class Skill {
 
   constructor(data: SkillData) {
     this.id = data.id ?? null;
-    this.name = requiredText(data.name, 'name');
+    this.name = requiredText(data.name, 'Name');
     this.description = optionalText(data.description);
     this.sortOrder = sortOrder(data.sortOrder);
   }
