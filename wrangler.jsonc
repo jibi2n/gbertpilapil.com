@@ -8,6 +8,12 @@
 		"directory": "./dist",
 		"binding": "ASSETS"
 	},
+	// Keep the workers.dev address working alongside the real domain.
+	"workers_dev": true,
+	"routes": [
+		{ "pattern": "gbertpilapil.com", "custom_domain": true },
+		{ "pattern": "www.gbertpilapil.com", "custom_domain": true }
+	],
 	"d1_databases": [
 		{
 			"binding": "DB",

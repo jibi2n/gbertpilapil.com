@@ -1,7 +1,7 @@
 # Gbert Pilapil portfolio
 
 Astro site on Cloudflare Workers. Content lives in a Cloudflare D1 database.
-The plan and what is still to build are in [phase-1-plan.md](phase-1-plan.md).
+The plan and what is still to build are in [docs/phase-1-plan.md](docs/phase-1-plan.md).
 
 ## Commands
 
