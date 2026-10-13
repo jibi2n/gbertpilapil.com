@@ -1,87 +1,33 @@
 ---
-// The short version of the site for employers: a mini resume on one page.
-// Shown instead of the full page while the "summary" theme is active.
+// The landing view: a plain, compact resume for hiring managers.
+// Shown instead of the full site while the "summary" theme is active.
+// Deliberately quiet: no animation, no mascot, no theme picker.
 import type { Experience } from '../lib/models/Experience';
 import type { Project } from '../lib/models/Project';
 import type { Skill } from '../lib/models/Skill';
 import type { Technology } from '../lib/models/Technology';
 import { site } from '../site';
-import TechMarquee from './TechMarquee.astro';
-import ThemeDots from './ThemeDots.astro';
 
 interface Props {
   /** The few projects worth leading with. */
   projects: Project[];
-  /** Education and the headline achievement. */
-  highlights: Experience[];
+  experiences: Experience[];
   skills: Skill[];
-  /** Every technology, for the moving strip. */
-  technologies: Technology[];
+  /** Technologies grouped by category. */
+  stack: Map<string, Technology[]>;
 }
 
-const { projects, highlights, skills, technologies } = Astro.props;
+const { projects, experiences, skills, stack } = Astro.props;
 ---
 
-<section class="summary" aria-label="Summary">
-  <div class="summary-top" data-theme-swipe>
-    <div class="summary-head" data-intro>
-      <p class="intro-aside">Hi, I'm</p>
-      <ThemeDots />
-    </div>
-    <h1 class="display summary-name" data-intro>{site.name}</h1>
-    <p class="summary-lede" data-intro>{site.summary}</p>
-    <p class="summary-actions" data-intro>
-      <a class="button" href="/resume">View my resume</a>
-      <a class="button button-quiet" href={`mailto:${site.email}`}>Email me</a>
-      <button type="button" class="link" data-set-theme="professional">See the full site</button>
-    </p>
-  </div>
-
-  <div data-intro>
-    <TechMarquee technologies={technologies} />
-  </div>
-
-  <div class="grid-12 summary-grid" data-intro>
-    <div class="summary-main">
-      <h2 class="summary-label">Top projects</h2>
-      <ul>
-        {
-          projects.map((project) => (
-            <li class="summary-item">
-              <h3 class="subheading">
-                <button type="button" data-project-open={project.slug} aria-haspopup="dialog">
-                  {project.title}
-                </button>
-              </h3>
-              <p class="prose">{project.summary}</p>
-              <p class="small">{project.technologies.join(', ')}</p>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-
-    <div class="summary-side">
-      <h2 class="summary-label">Experience and education</h2>
-      <ul>
-        {
-          highlights.map((item) => (
-            <li class="summary-item">
-              <h3 class="subheading">{item.role}</h3>
-              <p>{item.organization}</p>
-              <p class="small">{item.period()}</p>
-            </li>
-          ))
-        }
-      </ul>
-
-      <h2 class="summary-label">What I do</h2>
-      <ul class="stack-list summary-item">
-        {skills.map((skill) => <li class="chip">{skill.name}</li>)}
-      </ul>
-
-      <h2 class="summary-label">Contact</h2>
-      <ul class="summary-contact summary-item">
+<section class="summary" aria-label="Resume summary">
+  <div class="sheet">
+    <header class="sheet-head">
+      <div>
+        <h1 class="sheet-name display">{site.name}</h1>
+        <p class="sheet-headline">{site.headline}</p>
+      </div>
+      <ul class="sheet-contact">
         <li><a class="link" href={`mailto:${site.email}`}>{site.email}</a></li>
         {
           site.links.slice(0, 2).map((link) => (
@@ -92,7 +38,80 @@ const { projects, highlights, skills, technologies } = Astro.props;
             </li>
           ))
         }
+        <li>{site.location}</li>
       </ul>
+    </header>
+
+    <p class="sheet-summary">{site.summary}</p>
+
+    <p class="summary-actions">
+      <a class="button" href="/resume.pdf" download="Gbert-Pilapil-Resume.pdf">Download resume (PDF)</a>
+      <button type="button" class="link" data-set-theme="professional">See the full portfolio</button>
+    </p>
+
+    <div class="sheet-body">
+      <div class="sheet-main">
+        <section>
+          <h2 class="sheet-label">Experience and education</h2>
+          {
+            experiences.map((entry) => (
+              <article class="entry">
+                <div class="entry-head">
+                  <h3>{entry.role}</h3>
+                  <span class="entry-when">{entry.period()}</span>
+                </div>
+                <p class="entry-sub">{entry.organization}</p>
+                {entry.description && <p class="entry-text">{entry.description}</p>}
+              </article>
+            ))
+          }
+        </section>
+
+        <section>
+          <h2 class="sheet-label">Projects</h2>
+          {
+            projects.map((project) => (
+              <article class="entry">
+                <div class="entry-head">
+                  <h3>
+                    <button type="button" data-project-open={project.slug} aria-haspopup="dialog">
+                      {project.title}
+                    </button>
+                  </h3>
+                </div>
+                <p class="entry-sub">{project.technologies.join(', ')}</p>
+                <p class="entry-text">{project.summary}</p>
+              </article>
+            ))
+          }
+          <p class="entry">
+            <a class="link" href="/projects">View all projects</a>
+          </p>
+        </section>
+      </div>
+
+      <aside class="sheet-side" aria-label="Skills">
+        <section>
+          <h2 class="sheet-label">Skills</h2>
+          <dl class="sheet-skills">
+            {
+              [...stack].map(([category, technologies]) => (
+                <div>
+                  <dt>{category}</dt>
+                  <dd>{technologies.map((technology) => technology.name).join(', ')}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </section>
+
+        <section>
+          <h2 class="sheet-label">Focus areas</h2>
+          <ul class="sheet-focus">
+            {skills.map((skill) => <li>{skill.name}</li>)}
+          </ul>
+        </section>
+      </aside>
     </div>
   </div>
 </section>

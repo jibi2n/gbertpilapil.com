@@ -35,7 +35,16 @@ const themeIds = themes.map((theme) => theme.id);
         try {
           saved = localStorage.getItem('theme');
         } catch (e) {}
-        root.dataset.theme = themeIds.indexOf(saved) >= 0 ? saved : themeIds[0];
+        var theme = themeIds.indexOf(saved) >= 0 ? saved : themeIds[0];
+        root.dataset.theme = theme;
+        // The extra themes are hidden until found. Anyone already on one has found them.
+        var unlocked = null;
+        try {
+          unlocked = localStorage.getItem('themes-unlocked');
+        } catch (e) {}
+        if (unlocked === '1' || (theme !== 'summary' && theme !== 'professional')) {
+          root.classList.add('themes-unlocked');
+        }
         // Light or dark: the visitor's last choice, else what their device is set to.
         var mode = null;
         try {
@@ -51,7 +60,8 @@ const themeIds = themes.map((theme) => theme.id);
         try {
           if (!sessionStorage.getItem('visited')) {
             sessionStorage.setItem('visited', '1');
-            root.classList.add('is-loading');
+            // The resume view should appear instantly, with no loading screen in front of it.
+            if (theme !== 'summary') root.classList.add('is-loading');
           }
         } catch (e) {}
       })();
@@ -69,7 +79,11 @@ const themeIds = themes.map((theme) => theme.id);
     </main>
     <Mascot />
     <footer class="footer small">
-      <span>© {new Date().getFullYear()} {site.name}</span>
+      <span>
+        © {new Date().getFullYear()} {site.name}
+        {/* The easter egg: an unlabelled dot that reveals the hidden themes. */}
+        <button type="button" class="egg" aria-label="A small dot. Curious?"></button>
+      </span>
       <span>{site.location}</span>
       <a href="#top">Back to top</a>
     </footer>

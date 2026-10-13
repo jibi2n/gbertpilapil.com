@@ -68,10 +68,58 @@ function setTheme(index: number) {
     setUpReveals();
     ScrollTrigger.refresh();
     lenis?.resize();
+    // The mascot is hidden in some themes, so he re-checks which way to face when he reappears.
+    faceCenter();
   });
 }
 
 showTheme();
+
+/* The extra themes are an easter egg: the picker, the mascot and the swipe
+   and arrow-key shortcuts stay off until the visitor finds the way in (the
+   dot in the footer, or typing "mudkip"). Switching between the resume view
+   and the portfolio with their own links works either way. */
+let unlocked = root.classList.contains('themes-unlocked');
+
+function unlockThemes() {
+  unlocked = true;
+  root.classList.add('themes-unlocked');
+  try {
+    localStorage.setItem('themes-unlocked', '1');
+    // His tip explains what was just found, so make sure it shows.
+    localStorage.removeItem('mascot-tip');
+  } catch {
+    // Private browsing: it will need finding again next visit.
+  }
+}
+
+document.querySelector('.egg')?.addEventListener('click', () => {
+  if (unlocked) {
+    // Already found: the dot just steps to the next theme.
+    setTheme(current + 1);
+  } else {
+    unlockThemes();
+    // Land on the Mudkip theme, where the mascot explains the rest.
+    setTheme(themes.findIndex((theme) => theme.id === 'mudkip'));
+    setBubble(true, false);
+  }
+  window.scrollTo(0, 0);
+});
+
+// The other way in: type "mudkip" anywhere on the page.
+const SECRET = 'mudkip';
+let typedSoFar = '';
+document.addEventListener('keydown', (event) => {
+  if (unlocked || event.key.length !== 1) return;
+  if ((event.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
+  typedSoFar = (typedSoFar + event.key.toLowerCase()).slice(-SECRET.length);
+  if (typedSoFar !== SECRET) return;
+  unlockThemes();
+  setTheme(themes.findIndex((theme) => theme.id === SECRET));
+  setBubble(true, false);
+  window.scrollTo(0, 0);
+});
+console.log('Psst. Type "mudkip" anywhere on this page.');
 
 // Dots: click one, or use the arrow keys while one is focused.
 for (const { group, dots } of dotGroups) {
@@ -99,9 +147,9 @@ for (const button of document.querySelectorAll<HTMLElement>('[data-set-theme]'))
 }
 
 // Left and right arrow keys, while the top of the page is on screen and nothing else wants them.
-if (dotGroups.length > 0) {
+if (swipeAreas.length > 0) {
   document.addEventListener('keydown', (event) => {
-    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (!unlocked || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     if ((event.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
     if (window.scrollY > window.innerHeight * 0.6) return;
@@ -127,14 +175,14 @@ function preloadThemeFonts() {
 
 for (const area of swipeAreas) {
   area.addEventListener('pointerdown', (event) => {
-    if (event.pointerType === 'mouse' || (event.target as HTMLElement).closest('a, button')) return;
+    if (!unlocked || event.pointerType === 'mouse' || (event.target as HTMLElement).closest('a, button')) return;
     dragX = event.clientX;
   });
   // Sideways scrolling on a trackpad or tilt wheel does the same.
   area.addEventListener(
     'wheel',
     (event) => {
-      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      if (!unlocked || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
       event.preventDefault();
       if (performance.now() < wheelReadyAt) return;
       wheelTravel += event.deltaX;
