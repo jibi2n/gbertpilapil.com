@@ -323,6 +323,16 @@ for (const panel of document.querySelectorAll<HTMLDialogElement>('dialog.panel')
   panel.addEventListener('close', () => lenis?.start());
 }
 
+/* ---------- Links to other sites open in a new tab ---------- */
+
+// Done here rather than on each link so it also covers links added later.
+for (const link of document.querySelectorAll<HTMLAnchorElement>('a[href^="http"]')) {
+  if (link.host === location.host) continue;
+  link.target = '_blank';
+  // Stops the other site from being able to control this tab.
+  link.rel = 'noopener noreferrer';
+}
+
 /* ---------- Image skeletons ---------- */
 
 for (const img of document.querySelectorAll<HTMLImageElement>('.media.is-pending img')) {

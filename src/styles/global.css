@@ -896,7 +896,13 @@ li.summary-item + li.summary-item {
 }
 
 @media (min-width: 900px) {
-  /* Text on the left, the photo in the middle, facts on the right. */
+  /* Text on the left, the photo in the middle, facts on the right. The text
+     and facts are shorter than the photo, so they sit level with its middle
+     instead of leaving a gap underneath. */
+  .about-grid {
+    align-items: center;
+  }
+
   .about-grid > * {
     grid-row: 1;
   }
