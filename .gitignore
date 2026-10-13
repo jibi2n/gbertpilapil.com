@@ -30,3 +30,5 @@ worker-configuration.d.ts
 
 # browser test output
 .playwright-mcp/
+
+docs/

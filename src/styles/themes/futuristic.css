@@ -30,8 +30,16 @@
   display: block;
 }
 
-[data-theme='futuristic'] .display {
-  text-shadow: 0 0 2.5rem rgb(91 233 255 / 0.25);
+/* Neon glow around the letters. */
+[data-theme='futuristic'] .heading {
+  text-shadow: 0 0 2.5rem rgb(91 233 255 / 0.3);
+}
+
+/* The name's box clips its contents for the slide-up intro, which would cut a
+   text-shadow off into a hard rectangle. A drop-shadow on the box itself is
+   drawn after the clip, so the glow stays soft and follows the letters. */
+[data-theme='futuristic'] .intro-name {
+  filter: drop-shadow(0 0 1.75rem rgb(91 233 255 / 0.35));
 }
 
 [data-theme='futuristic'] .chip {

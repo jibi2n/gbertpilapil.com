@@ -7,9 +7,7 @@ import { site } from '../site';
   <p class="prose mb-6" data-reveal>
     I'm looking for a software engineering or data internship. Email is the fastest way to reach me.
   </p>
-  <a class="contact-email" href={`mailto:${site.email}`} data-reveal>
-    <span class="display fit" data-fit>{site.email}</span>
-  </a>
+  <a class="contact-email" href={`mailto:${site.email}`} data-reveal>{site.email}</a>
   <ul class="contact-links">
     {
       site.links.map((link) => (

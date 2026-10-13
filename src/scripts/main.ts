@@ -6,7 +6,7 @@ import 'lenis/dist/lenis.css';
 const root = document.documentElement;
 const motion = root.classList.contains('motion');
 
-/* ---------- Text that spans its container edge to edge ---------- */
+/* ---------- The name spans its container edge to edge ---------- */
 
 function fitText() {
   for (const el of document.querySelectorAll<HTMLElement>('[data-fit]')) {
@@ -129,25 +129,16 @@ if (motion) {
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 
-  for (const el of document.querySelectorAll('[data-reveal]')) {
-    gsap.from(el, {
-      y: 40,
-      autoAlpha: 0,
-      duration: 0.9,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: el, start: 'top 88%', once: true },
-    });
-  }
-  for (const group of document.querySelectorAll('[data-reveal-group]')) {
-    gsap.from(group.children, {
-      y: 40,
-      autoAlpha: 0,
-      duration: 0.8,
-      ease: 'power3.out',
-      stagger: 0.08,
-      scrollTrigger: { trigger: group, start: 'top 85%', once: true },
-    });
-  }
+  // Each piece of content rises into place as it scrolls into view. Items that
+  // arrive together (a row of projects, say) follow one another in a quick stagger.
+  const reveals = gsap.utils.toArray<HTMLElement>('[data-reveal], [data-reveal-group] > *');
+  gsap.set(reveals, { autoAlpha: 0, y: 56 });
+  ScrollTrigger.batch(reveals, {
+    start: 'top 92%',
+    once: true,
+    onEnter: (batch) =>
+      gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.12, overwrite: true }),
+  });
 }
 
 /** Hides the loading screen (if it is showing) and plays the intro. */
