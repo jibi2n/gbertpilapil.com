@@ -48,7 +48,7 @@ try {
 
 <Layout>
   <!-- Shown only in the Summary theme: a business card. -->
-  <Summary projects={projects} />
+  <Summary projects={projects} techCount={[...stack.values()].flat().length} />
 
   <!-- The full site, shown in every other theme. -->
   <div class="full-view">

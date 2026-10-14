@@ -33,8 +33,12 @@ export const site = {
     pitch: 'I build web apps, AI tools, and data pipelines.',
     title: 'Full-Stack Developer',
     school: '4th Year BS Computer Science, University of Santo Tomas',
-    /** Technology names, as in the database, so they pick up their logos. */
-    stack: ['Python', 'TypeScript', 'React', 'Next.js', 'PostgreSQL', 'Supabase'],
+    /** Technology names, as in the database, so they pick up their logos.
+        Small cards (phones) show only the first six. */
+    stack: [
+      'Python', 'TypeScript', 'React', 'Next.js', 'PostgreSQL', 'Supabase',
+      'JavaScript', 'FastAPI', 'Tailwind CSS', 'Pandas', 'Docker', 'Git',
+    ],
   },
   links: [
     { label: 'LinkedIn', href: 'https://linkedin.com/in/gbert-pilapil' },

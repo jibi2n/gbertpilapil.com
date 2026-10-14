@@ -10,9 +10,15 @@ import Icon from './Icon.astro';
 interface Props {
   /** The showcased projects. The first three go on the back. */
   projects: Project[];
+  /** How many technologies there are in all, for the "+ more" line. */
+  techCount: number;
 }
 
-const { projects } = Astro.props;
+const { projects, techCount } = Astro.props;
+const { stack } = site.card;
+// Small cards show six, so they have more left over.
+const moreWide = techCount - stack.length;
+const moreNarrow = techCount - Math.min(stack.length, 6);
 const top = projects.slice(0, 3);
 
 const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github' | 'facebook' | 'instagram';
@@ -86,7 +92,7 @@ const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github'
           <h2 class="card-label">Core stack</h2>
           <ul class="card-stack">
             {
-              site.card.stack.map((name) => {
+              stack.map((name) => {
                 const path = techIcon(name);
                 return (
                   <li style={`--logo: ${techColor(name) ?? 'currentColor'}`}>
@@ -99,6 +105,14 @@ const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github'
                   </li>
                 );
               })
+            }
+            {
+              moreNarrow > 0 && (
+                <li class="card-stack-more">
+                  {moreWide > 0 && <span class="card-more-wide">+{moreWide} more</span>}
+                  <span class="card-more-narrow">+{moreNarrow} more</span>
+                </li>
+              )
             }
           </ul>
         </div>

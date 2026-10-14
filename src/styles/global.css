@@ -856,7 +856,7 @@ html.motion .card:not(.was-flipped) .card-inner {
 /* Back */
 .card-back {
   display: grid;
-  grid-template-columns: 1.35fr 1fr;
+  grid-template-columns: 1.15fr 1fr;
   align-content: center;
   gap: 2em;
   background: var(--card-paper);
@@ -920,16 +920,17 @@ html.motion .card:not(.was-flipped) .card-inner {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   margin-top: 0.15em;
   font-size: max(0.8em, 10px);
   line-height: 1.4;
   color: var(--card-ink-muted);
 }
 
+/* Two columns on wide cards; one column of the first six on small ones. */
 .card-stack {
-  display: grid;
-  gap: 0.6em;
+  columns: 2;
+  column-gap: 1.25em;
   font-size: max(0.9em, 10.5px);
 }
 
@@ -937,6 +938,17 @@ html.motion .card:not(.was-flipped) .card-inner {
   display: flex;
   align-items: center;
   gap: 0.6em;
+  margin-bottom: 0.6em;
+  break-inside: avoid;
+}
+
+.card-stack-more {
+  padding-left: 1.8em;
+  color: var(--card-ink-muted);
+}
+
+.card-more-narrow {
+  display: none;
 }
 
 .card-stack .icon {
@@ -987,6 +999,7 @@ html.motion .card:not(.was-flipped) .card-inner {
   }
 
   .card-back {
+    grid-template-columns: 1.5fr 1fr;
     gap: 1.2em;
   }
 
@@ -1003,7 +1016,20 @@ html.motion .card:not(.was-flipped) .card-inner {
   }
 
   .card-stack {
-    gap: 0.35em;
+    columns: 1;
+  }
+
+  .card-stack li {
+    margin-bottom: 0.35em;
+  }
+
+  .card-stack li:nth-child(n + 7):not(.card-stack-more),
+  .card-more-wide {
+    display: none;
+  }
+
+  .card-more-narrow {
+    display: inline;
   }
 }
 
