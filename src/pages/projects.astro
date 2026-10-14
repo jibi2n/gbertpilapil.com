@@ -140,28 +140,27 @@ const technologies = ranked((project) => project.technologies);
         badge.textContent = String(inUse.length);
       }
       activeRow.hidden = inUse.length === 0;
-      activeRow.replaceChildren(
-        ...inUse.map(([kind, value]) => {
-          const remove = document.createElement('button');
-          remove.type = 'button';
-          remove.className = 'chip active-filter';
-          remove.setAttribute('aria-label', `Remove filter: ${value}`);
-          remove.textContent = `${value} ×`;
-          remove.addEventListener('click', () => {
-            chosen[kind] = '';
-            update();
-          });
-          return remove;
-        }),
-      );
+      const items: HTMLElement[] = inUse.map(([kind, value]) => {
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'chip active-filter';
+        remove.setAttribute('aria-label', `Remove filter: ${value}`);
+        remove.textContent = `${value} ×`;
+        remove.addEventListener('click', () => {
+          chosen[kind] = '';
+          update();
+        });
+        return remove;
+      });
       if (inUse.length > 0) {
         const clearAll = document.createElement('button');
         clearAll.type = 'button';
         clearAll.className = 'link';
         clearAll.textContent = 'Clear all';
         clearAll.addEventListener('click', clear);
-        activeRow.append(clearAll);
+        items.push(clearAll);
       }
+      activeRow.replaceChildren(...items);
     }
 
     function clear() {
