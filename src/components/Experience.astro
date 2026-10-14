@@ -28,20 +28,31 @@ const groups = (Object.keys(EXPERIENCE_KINDS) as ExperienceKind[])
         )}
         <ol data-reveal-group>
           {group.entries.map((entry) => (
-            <li class="xp grid-12">
+            <li class="xp grid-12" data-collapsible>
               <p class="xp-period small">{entry.period()}</p>
               <div class="xp-role">
                 <h3 class="subheading">{entry.role}</h3>
                 <p class="mt-1">{entry.organization}</p>
               </div>
+              {/* On phones the description and all but three skills fold away behind the arrow. */}
               <div class="xp-desc">
-                <p class="prose">{entry.description}</p>
+                <p class="prose xp-text">{entry.description}</p>
                 {entry.skills.length > 0 && (
                   <ul class="tags" aria-label="Skills used">
                     {entry.skills.map((skill) => (
                       <li class="tag">{skill}</li>
                     ))}
+                    {entry.skills.length > 3 && (
+                      <li class="tag tag-more" aria-hidden="true">
+                        +{entry.skills.length - 3}
+                      </li>
+                    )}
                   </ul>
+                )}
+                {(entry.description || entry.skills.length > 3) && (
+                  <button type="button" class="xp-toggle" data-toggle aria-expanded="false" aria-label={`Details: ${entry.role}`}>
+                    <svg class="icon icon-line" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                  </button>
                 )}
               </div>
             </li>

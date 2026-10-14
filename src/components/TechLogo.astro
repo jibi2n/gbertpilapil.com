@@ -1,0 +1,26 @@
+---
+// A technology's logo in its brand color, or nothing if it has no logo.
+// Decoration next to the name, so it is hidden from screen readers.
+import { techColor, techIcon } from '../lib/techIcons';
+
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+const path = techIcon(name);
+const hex = techColor(name);
+
+// Very dark brands (Next.js, GitHub, Rust, Java, NumPy) would vanish in dark mode,
+// so they take the text color instead.
+const [r, g, b] = (hex ?? '#000').slice(1).match(/../g)!.map((pair) => parseInt(pair, 16) / 255);
+const color = hex && 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.25 ? hex : undefined;
+---
+
+{
+  path && (
+    <svg class="icon icon-fill tech-logo" viewBox="0 0 24 24" aria-hidden="true" style={color && `color: ${color}`}>
+      <path d={path} />
+    </svg>
+  )
+}

@@ -1,5 +1,8 @@
 ---
 import { site } from '../site';
+import Icon from './Icon.astro';
+
+const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github' | 'facebook' | 'instagram';
 ---
 
 <section id="contact" class="section">
@@ -7,16 +10,24 @@ import { site } from '../site';
   <p class="prose mb-6" data-reveal>
     I'm open to software engineering, data and AI work. Please contact me soon :>
   </p>
-  <a class="contact-email" href={`mailto:${site.email}`} data-reveal>{site.email}</a>
-  <ul class="contact-links">
-    {
-      site.links.map((link) => (
-        <li>
-          <a class="link" href={link.href}>
-            {link.label}
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+  <div data-reveal>
+    <p class="contact-email-row">
+      <a class="contact-email" href={`mailto:${site.email}`}>{site.email}</a>
+      <button type="button" class="contact-copy" data-copy={site.email} aria-label="Copy email address">
+        <Icon name="copy" />
+        <span class="copied-label" aria-hidden="true">Copied</span>
+      </button>
+    </p>
+    <ul class="contact-links" aria-label="Elsewhere">
+      {
+        site.links.map((link) => (
+          <li>
+            <a href={link.href} aria-label={link.label} title={link.label}>
+              <Icon name={linkIcon(link.label)} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
 </section>

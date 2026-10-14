@@ -3,6 +3,7 @@
 // what I did. Opened by any element with data-project-open="<slug>".
 // These sit outside the sections so they work in every theme, including Summary.
 import type { Project } from '../lib/models/Project';
+import TechLogo from './TechLogo.astro';
 
 interface Props {
   projects: Project[];
@@ -17,7 +18,12 @@ const { projects } = Astro.props;
       <div class="panel-body" data-lenis-prevent>
         <div class="panel-top">
           <ul class="project-tech small" aria-label="Built with">
-            {project.technologies.map((name) => <li>{name}</li>)}
+            {project.technologies.map((name) => (
+              <li>
+                <TechLogo name={name} />
+                {name}
+              </li>
+            ))}
           </ul>
           <button type="button" class="panel-close" data-panel-close>
             Close

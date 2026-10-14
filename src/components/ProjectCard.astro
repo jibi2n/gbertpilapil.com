@@ -2,6 +2,7 @@
 // One project in a grid. The whole card opens the project's detail panel, so
 // the page also needs <ProjectPanels> for the same projects.
 import type { Project } from '../lib/models/Project';
+import TechLogo from './TechLogo.astro';
 
 interface Props {
   project: Project;
@@ -27,7 +28,12 @@ const { project, minimal = false } = Astro.props;
   {
     !minimal && (
       <ul class="project-tech small" aria-label="Built with">
-        {project.technologies.map((name) => <li>{name}</li>)}
+        {project.technologies.map((name) => (
+          <li>
+            <TechLogo name={name} />
+            {name}
+          </li>
+        ))}
       </ul>
     )
   }

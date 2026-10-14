@@ -1,17 +1,30 @@
 ---
 import { site } from '../site';
+import Icon from './Icon.astro';
 import ThemeDots from './ThemeDots.astro';
 
-// On phones the name stacks as "Gbert O." over "Pilapil": everything before
+// The name in two parts, so each can slide in on its own: everything before
 // the last word, then the last word.
 const words = site.name.split(' ');
 const lastName = words.pop();
 const firstNames = words.join(' ');
+
+const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github' | 'facebook' | 'instagram';
 ---
 
 <!-- Swiping this section sideways changes the theme (see src/scripts/main.ts). -->
 <section class="intro" aria-label="Introduction" data-theme-swipe>
   <div class="intro-main">
+    {/* Phones only: the intro doubles as the About section, so it gets the photo and facts. */}
+    <img
+      class="intro-photo"
+      src="/gbert-pilapil.webp"
+      alt={`Portrait of ${site.name}`}
+      width="640"
+      height="800"
+      decoding="async"
+      data-intro
+    />
     <p class="intro-aside" data-intro>Hi, I'm</p>
 
     <h1 class="intro-name">
@@ -21,17 +34,43 @@ const firstNames = words.join(' ');
       </span>
     </h1>
 
+    <ul class="contact-links intro-socials" aria-label="Elsewhere" data-intro>
+      {
+        site.links.map((link) => (
+          <li>
+            <a href={link.href} aria-label={link.label} title={link.label}>
+              <Icon name={linkIcon(link.label)} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
     <p class="intro-aside" data-intro>
-      <span class="sr-only">I'm a {site.roles.join(', ')}.</span>
-      <!-- The word is typed out, deleted and replaced by the script. -->
-      <span aria-hidden="true">
-        I'm a <span class="typed" data-roles={JSON.stringify(site.roles)}>{site.roles[0]}</span><span class="caret">|</span>
+      <span class="role-static">I'm a {site.roles[0]}</span>
+      <!-- Futuristic theme only: the word is typed out, deleted and replaced by the script. -->
+      <span class="role-typed">
+        <span class="sr-only">I'm a {site.roles.join(', ')}.</span>
+        <span aria-hidden="true">
+          I'm a <span class="typed" data-roles={JSON.stringify(site.roles)}>{site.roles[0]}</span><span class="caret">|</span>
+        </span>
       </span>
     </p>
+
+    <dl class="facts intro-facts" data-intro>
+      {
+        site.about.facts.map((fact) => (
+          <div>
+            <dt>{fact.label}</dt>
+            <dd>{fact.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+    <a class="button intro-cta" href="#projects" data-intro>Check my work</a>
   </div>
 
   <div class="intro-row intro-bottom" data-intro>
-    <p class="intro-tagline">{site.tagline}</p>
     <div class="intro-switch">
       {/* Hidden until the visitor finds the themes; see "Hidden themes" in global.css. */}
       <ThemeDots />

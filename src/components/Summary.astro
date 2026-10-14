@@ -42,7 +42,7 @@ const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github'
               <a href={`mailto:${site.email}`}><Icon name="mail" />{site.email}</a>
               <button type="button" class="card-copy" data-copy={site.email} aria-label="Copy email address">
                 <Icon name="copy" />
-                <span class="card-copied" aria-hidden="true">Copied</span>
+                <span class="copied-label" aria-hidden="true">Copied</span>
               </button>
             </p>
             {
@@ -133,5 +133,4 @@ const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github'
     <button type="button" class="button" data-set-theme="professional">View my full portfolio</button>
   </p>
 
-  <p class="sr-only" aria-live="polite" data-copy-status></p>
 </section>

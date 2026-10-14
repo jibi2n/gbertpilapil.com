@@ -1,5 +1,6 @@
 ---
 import type { Technology } from '../lib/models/Technology';
+import TechLogo from './TechLogo.astro';
 
 interface Props {
   stack: Map<string, Technology[]>;
@@ -18,7 +19,12 @@ const { stack, emptyMessage } = Astro.props;
         <div class="stack-row grid-12">
           <h3 class="stack-cat subheading">{category}</h3>
           <ul class="stack-list">
-            {technologies.map((technology) => <li class="chip">{technology.name}</li>)}
+            {technologies.map((technology) => (
+              <li class="chip">
+                <TechLogo name={technology.name} />
+                {technology.name}
+              </li>
+            ))}
           </ul>
         </div>
       ))

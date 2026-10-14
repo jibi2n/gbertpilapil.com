@@ -15,8 +15,15 @@ const { skills, emptyMessage } = Astro.props;
   <ul class="skills" data-reveal-group>
     {
       skills.map((skill) => (
-        <li class="skill">
-          <h3 class="subheading">{skill.name}</h3>
+        <li class="skill" data-collapsible>
+          <h3 class="subheading">
+            {/* Phones get the button, which folds the description away; wider screens get the plain name. */}
+            <span class="skill-name">{skill.name}</span>
+            <button type="button" class="skill-toggle" data-toggle aria-expanded="false">
+              {skill.name}
+              <svg class="icon icon-line" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </button>
+          </h3>
           <p>{skill.description}</p>
         </li>
       ))

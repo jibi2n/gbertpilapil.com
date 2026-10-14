@@ -15,7 +15,11 @@ let lenis: Lenis | null = null;
 function fitText() {
   for (const el of document.querySelectorAll<HTMLElement>('[data-fit]')) {
     // Hidden (the Summary theme hides the big intro): nothing to measure yet.
-    if (el.offsetWidth === 0) continue;
+    // Phones: the name is set at a normal size in CSS instead.
+    if (el.offsetWidth === 0 || matchMedia('(max-width: 699px)').matches) {
+      el.style.fontSize = '';
+      continue;
+    }
     const available = el.parentElement!.clientWidth;
     // Measure at a known size, then scale. The element is exactly as wide as its text.
     el.style.fontSize = '100px';
@@ -210,6 +214,21 @@ function endDrag() {
 window.addEventListener('pointerup', endDrag);
 window.addEventListener('pointercancel', endDrag);
 
+/* ---------- Fold-away details (phones) ---------- */
+
+// A [data-toggle] button opens and closes the [data-collapsible] item around
+// it. CSS decides what that hides, and only does so on phones.
+for (const button of document.querySelectorAll<HTMLButtonElement>('[data-toggle]')) {
+  const item = button.closest<HTMLElement>('[data-collapsible]')!;
+  button.addEventListener('click', () => {
+    button.setAttribute('aria-expanded', String(item.classList.toggle('is-open')));
+  });
+  // A tap anywhere on the item counts, while the button is showing (phones).
+  item.addEventListener('click', (event) => {
+    if (!(event.target as Element).closest('a, button') && button.offsetParent) button.click();
+  });
+}
+
 /* ---------- Business card (Summary theme) ---------- */
 
 const card = document.querySelector<HTMLElement>('[data-card]');
@@ -232,22 +251,24 @@ if (card && flipButton) {
   });
 }
 
-const copyButton = document.querySelector<HTMLButtonElement>('[data-copy]');
+// Copy buttons: put their text on the clipboard and say so for a moment.
 const copyStatus = document.querySelector<HTMLElement>('[data-copy-status]');
-copyButton?.addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(copyButton.dataset.copy!);
-  } catch {
-    // No clipboard access (an old browser, or not https): the mailto link still works.
-    return;
-  }
-  copyButton.classList.add('is-copied');
-  if (copyStatus) copyStatus.textContent = 'Email address copied';
-  setTimeout(() => {
-    copyButton.classList.remove('is-copied');
-    if (copyStatus) copyStatus.textContent = '';
-  }, 1600);
-});
+for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+  button.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(button.dataset.copy!);
+    } catch {
+      // No clipboard access (an old browser, or not https): the mailto link still works.
+      return;
+    }
+    button.classList.add('is-copied');
+    if (copyStatus) copyStatus.textContent = 'Email address copied';
+    setTimeout(() => {
+      button.classList.remove('is-copied');
+      if (copyStatus) copyStatus.textContent = '';
+    }, 1600);
+  });
+}
 
 /* ---------- Light and dark mode (Professional theme) ---------- */
 

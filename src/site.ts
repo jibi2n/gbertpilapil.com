@@ -4,13 +4,13 @@ export const site = {
   title: 'Gbert O. Pilapil | Aspiring Software and Data Engineer',
   description:
     'Portfolio of Gbert O. Pilapil, a computer science student at the University of Santo Tomas, specializing mainly in software engineering and data science.',
-  /** Typed out one at a time under the name: "I'm a ...". Each should read naturally after "a". */
+  /** Under the name: "I'm a ...". The first is shown as is; the Futuristic theme types out each in turn.
+      Each should read naturally after "a". */
   roles: ['Full-stack Developer', 'UI/UX Designer', 'Computer Science Student', 'Data Scientist', 'AI & Automation Enthusiast', 'Researcher'],
   location: 'Quezon City, Philippines',
   /** The pitch at the top of the Summary theme. Keep it to two or three sentences. */
   summary:
     "Hi I am an aspiring Software Engineer or Data Scientist. I enjoy building things and learning new technologies. I am very interested in AI and automation, and I am always looking for ways to expand my skills and knowledge. Most of my experience is in building web applications (mostly full stack), but I can also work with data and other stuff.",
-  tagline: 'I build and create software and data solutions, from ideas to production, and from raw data to insights',
   about: {
     statement:
       'I enjoy building things :>',

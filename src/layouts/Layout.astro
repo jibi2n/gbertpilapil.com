@@ -45,15 +45,12 @@ const themeIds = themes.map((theme) => theme.id);
         if (unlocked === '1' || (theme !== 'summary' && theme !== 'professional')) {
           root.classList.add('themes-unlocked');
         }
-        // Light or dark: the visitor's last choice, else what their device is set to.
+        // Light or dark: the visitor's last choice, else light.
         var mode = null;
         try {
           mode = localStorage.getItem('mode');
         } catch (e) {}
-        if (mode !== 'dark' && mode !== 'light') {
-          mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        root.dataset.mode = mode;
+        root.dataset.mode = mode === 'dark' ? 'dark' : 'light';
         root.classList.add('js');
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         root.classList.add('motion');
@@ -79,14 +76,18 @@ const themeIds = themes.map((theme) => theme.id);
     </main>
     <Mascot />
     <footer class="footer small">
-      <span>
-        © {new Date().getFullYear()} {site.name}
-        {/* The easter egg: an unlabelled dot that reveals the hidden themes. */}
-        <button type="button" class="egg" aria-label="A small dot. Curious?"></button>
-      </span>
+      <a href="#top" class="footer-top">
+        <svg class="icon icon-line" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7M12 19V5" /></svg>
+        Back to top
+      </a>
+      {/* Reveals the hidden themes; once they're found it steps through them. */}
+      <button type="button" class="egg">
+        <span class="egg-locked">Explore this site in other themes</span>
+        <span class="egg-unlocked">Try another theme</span>
+      </button>
       <span>{site.location}</span>
-      <a href="#top">Back to top</a>
     </footer>
+    <p class="sr-only" aria-live="polite" data-copy-status></p>
     <script>
       import '../scripts/main';
     </script>
