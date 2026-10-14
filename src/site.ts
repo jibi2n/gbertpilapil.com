@@ -28,6 +28,14 @@ export const site = {
   email: 'gbertpilapil12@gmail.com',
   /** Shown on the business card. Left blank, it is hidden. */
   phone: '',
+  /** The business card on the landing view. */
+  card: {
+    pitch: 'I build web apps, AI tools, and data pipelines.',
+    title: 'Full-Stack Developer',
+    school: '4th Year BS Computer Science, University of Santo Tomas',
+    /** Technology names, as in the database, so they pick up their logos. */
+    stack: ['Python', 'TypeScript', 'React', 'Next.js', 'PostgreSQL', 'Supabase'],
+  },
   links: [
     { label: 'LinkedIn', href: 'https://linkedin.com/in/gbert-pilapil' },
     { label: 'GitHub', href: 'https://github.com/jibi2n' },

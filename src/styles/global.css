@@ -654,21 +654,66 @@ footer {
   display: none;
 }
 
-/* The business card. Its size is fixed by its shape (landscape on wide
-   screens, portrait on phones) and both faces fill it, so flipping never
-   changes the height. The front is the dark ink side; the back is paper. */
+/* The business card. It keeps the same landscape shape on every screen and
+   both faces fill it, so flipping never changes its size. Everything inside
+   is sized in em off a font size that follows the card's width, so on a phone
+   it is a smaller copy of the same card, with a floor so text stays readable.
+   The front is the dark ink side; the back is paper. */
 .card {
   --card-ink: #15203a;
   --card-paper: #fbfaf7;
   --card-gold: #f3b61f;
+  /* Gold dark enough to see against the light page, for focus rings. */
+  --card-gold-deep: #a87400;
   --card-ink-muted: #5d6475;
-  --card-paper-muted: #a9b0c2;
+  --card-paper-muted: #aab1c3;
 
-  position: relative;
+  container: card / inline-size;
   width: min(100%, 40rem);
   aspect-ratio: 7 / 4;
   perspective: 1800px;
   cursor: pointer;
+}
+
+.card-inner {
+  --turn: 0deg;
+  position: relative;
+  height: 100%;
+  font-size: clamp(11px, 2.5cqi, 16px);
+  transform-style: preserve-3d;
+  transform: rotateY(var(--turn));
+  transition: transform 0.75s cubic-bezier(0.3, 0.1, 0.2, 1);
+}
+
+.card.is-flipped .card-inner {
+  --turn: 180deg;
+}
+
+/* Hints that the card turns: it peeks at its back once after the page loads,
+   and leans a little under the pointer. */
+html.motion .card:not(.was-flipped) .card-inner {
+  animation: card-peek 1.3s cubic-bezier(0.3, 0.1, 0.2, 1) 0.9s;
+}
+
+@keyframes card-peek {
+  40% {
+    transform: rotateY(-32deg);
+  }
+  70% {
+    transform: rotateY(5deg);
+  }
+}
+
+@media (hover: hover) {
+  html.motion .card:hover .card-inner {
+    transform: rotateY(calc(var(--turn) - 7deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-inner {
+    transition: none;
+  }
 }
 
 .card-face {
@@ -677,93 +722,84 @@ footer {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: clamp(1.25rem, 3.5vw, 2.25rem);
-  border-radius: 16px;
+  padding: 2.25em;
+  border-radius: 1em;
   box-shadow:
-    0 1px 2px rgb(21 32 58 / 0.12),
-    0 1.5rem 3.5rem -1rem rgb(21 32 58 / 0.35);
+    0 1px 2px rgb(21 32 58 / 0.08),
+    0 1rem 2.5rem -1rem rgb(21 32 58 / 0.22);
   backface-visibility: hidden;
-  transition: transform 0.9s cubic-bezier(0.3, 0.1, 0.2, 1);
 }
 
 .card-back {
   transform: rotateY(180deg);
 }
 
-.card.is-flipped .card-front {
-  transform: rotateY(-180deg);
-}
-
-.card.is-flipped .card-back {
-  transform: rotateY(0deg);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .card-face {
-    transition: none;
-  }
+.card .icon {
+  width: 1.1em;
+  height: 1.1em;
 }
 
 /* Front */
 .card-front {
-  justify-content: flex-end;
+  justify-content: space-between;
   background:
-    radial-gradient(120% 90% at 100% 0%, rgb(243 182 31 / 0.14), transparent 55%),
+    radial-gradient(110% 90% at 100% 0%, rgb(243 182 31 / 0.13), transparent 55%),
     var(--card-ink);
   color: var(--card-paper);
 }
 
-.card-front :focus-visible {
+.card .card-front :focus-visible {
   outline-color: var(--card-gold);
 }
 
-.card-flip-hint {
-  position: absolute;
-  top: clamp(1.25rem, 3.5vw, 2.25rem);
-  right: clamp(1.25rem, 3.5vw, 2.25rem);
-  width: 1.15rem;
-  height: 1.15rem;
-  fill: none;
-  stroke: var(--card-paper-muted);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.card-pitch {
+  max-width: 19ch;
+  font-size: 1.35em;
+  line-height: 1.25;
+  color: rgb(251 250 247 / 0.78);
+}
+
+.card-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5em;
 }
 
 .card-name {
-  font-size: clamp(2rem, 6vw, 3rem);
+  font-size: 2.6em;
   font-weight: 600;
   line-height: 0.95;
+  white-space: nowrap;
 }
 
 .card-title {
-  margin-top: 0.7rem;
-  font-size: 1.1rem;
+  margin-top: 0.6em;
+  font-size: 1.05em;
   font-weight: 500;
   color: var(--card-gold);
 }
 
 .card-school {
-  margin-top: 0.2rem;
-  font-size: 0.88rem;
-  line-height: 1.4;
+  max-width: 24ch;
+  margin-top: 0.2em;
+  font-size: max(0.85em, 10px);
+  line-height: 1.35;
   color: var(--card-paper-muted);
 }
 
 .card-contact {
   display: grid;
-  gap: 0.15rem;
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgb(251 250 247 / 0.14);
-  font-size: 0.9rem;
+  justify-items: end;
+  gap: 0.2em;
+  font-size: max(0.9em, 10px);
 }
 
-.card-contact a {
+.card-contact a,
+.card-email {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  min-height: 2.25rem;
+  gap: 0.5em;
   text-decoration: none;
 }
 
@@ -771,81 +807,108 @@ footer {
   color: var(--card-gold);
 }
 
-.card-socials {
-  display: flex;
-  margin-left: -0.6rem;
+.card-copy {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.4em;
+  height: 2.4em;
+  border-radius: 0.5em;
+  color: var(--card-paper-muted);
+  cursor: pointer;
 }
 
-/* Icon-only links still get a full-size tap target. */
+.card-copy:hover {
+  background: rgb(251 250 247 / 0.08);
+  color: var(--card-paper);
+}
+
+.card-copied {
+  display: none;
+  padding-inline: 0.4em;
+  color: var(--card-gold);
+}
+
+.card-copy.is-copied .icon {
+  display: none;
+}
+
+.card-copy.is-copied .card-copied {
+  display: inline;
+}
+
+.card-socials {
+  display: flex;
+  margin-right: -0.6em;
+}
+
+/* Icon-only links still get a decent tap target. */
 .card-socials a {
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5em;
+  height: 2.5em;
 }
 
 .card-socials .icon {
-  width: 1.2rem;
-  height: 1.2rem;
-}
-
-/* Wide screens: who I am on the left, how to reach me on the right. */
-@media (min-width: 640px) {
-  .card-front {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 2rem;
-  }
-
-  .card-contact {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    justify-items: end;
-  }
-
-  .card-socials {
-    margin: 0 -0.6rem 0 0;
-  }
+  width: 1.3em;
+  height: 1.3em;
 }
 
 /* Back */
 .card-back {
-  gap: 1.25rem;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  align-content: center;
+  gap: 2em;
   background: var(--card-paper);
   color: var(--card-ink);
 }
 
+.card-back :focus-visible {
+  outline-color: var(--card-gold-deep);
+}
+
+/* A gold dot ties the back to the gold on the front. */
 .card-label {
-  margin-bottom: 0.6rem;
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.8em;
+  font-size: max(0.8em, 10px);
   font-weight: 600;
   color: var(--card-ink-muted);
 }
 
+.card-label::before {
+  content: '';
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--card-gold);
+}
+
 .card-projects {
   display: grid;
-  gap: 0.7rem;
+  gap: 0.9em;
 }
 
 .card-projects a,
 .card-projects span {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.3em;
   font-weight: 600;
   text-decoration: none;
 }
 
 .card-projects a .icon {
-  width: 0.95rem;
-  height: 0.95rem;
+  width: 0.9em;
+  height: 0.9em;
   color: var(--card-ink-muted);
   transition: transform 0.2s ease;
 }
 
 .card-projects a:hover {
-  color: #1f44ff;
+  color: var(--card-gold-deep);
 }
 
 .card-projects a:hover .icon {
@@ -853,74 +916,136 @@ footer {
   transform: translate(2px, -2px);
 }
 
-.card-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-top: 0.3rem;
-}
-
-.card-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.12rem 0.5rem;
-  border: 1px solid rgb(21 32 58 / 0.14);
-  border-radius: 6px;
-  background: #fff;
-  font-size: 0.72rem;
+.card-project-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  margin-top: 0.15em;
+  font-size: max(0.8em, 10px);
   line-height: 1.4;
   color: var(--card-ink-muted);
 }
 
-.card-logos {
+.card-stack {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(2.25rem, 1fr));
-  gap: 0.4rem;
+  gap: 0.6em;
+  font-size: max(0.9em, 10.5px);
 }
 
-.card-logos li {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1;
-  border: 1px solid rgb(21 32 58 / 0.1);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--logo, var(--card-ink));
+.card-stack li {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
 }
 
-.card-logos .icon {
-  width: 1.1rem;
-  height: 1.1rem;
+.card-stack .icon {
+  width: 1.2em;
+  height: 1.2em;
+  color: var(--logo);
 }
 
-/* Wide screens: projects and stack side by side. */
-@media (min-width: 640px) {
+/* Small cards (phones): the same shape, packed a little tighter. */
+@container card (width < 30rem) {
+  .card-face {
+    padding: 1.2em 1.3em;
+  }
+
+  .card-pitch {
+    max-width: none;
+    font-size: 1.05em;
+  }
+
+  .card-bottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7em;
+  }
+
+  .card-name {
+    font-size: 2em;
+  }
+
+  .card-title {
+    margin-top: 0.4em;
+  }
+
+  .card-school {
+    max-width: none;
+  }
+
+  .card-contact {
+    grid-auto-flow: column;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.5em;
+    border-top: 1px solid rgb(251 250 247 / 0.14);
+  }
+
+  .card-socials {
+    margin-right: -0.7em;
+  }
+
   .card-back {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    gap: 1.2em;
+  }
+
+  .card-label {
+    margin-bottom: 0.5em;
+  }
+
+  .card-projects {
+    gap: 0.55em;
+  }
+
+  .card-project-summary {
+    -webkit-line-clamp: 1;
+  }
+
+  .card-stack {
+    gap: 0.35em;
   }
 }
 
-/* Phones: a portrait card, like one held upright. */
-@media (max-width: 639px) {
-  .card {
-    aspect-ratio: 5 / 8;
-    max-width: 24rem;
-  }
+/* The hint under the card; also how keyboard users flip it. */
+.card-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--t-muted);
+  cursor: pointer;
+}
 
-  .card-logos {
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.3rem;
-  }
+.card-hint:hover {
+  color: var(--t-ink);
+}
+
+.card-hint-back,
+.card.is-flipped + .card-hint .card-hint-front {
+  display: none;
+}
+
+.card.is-flipped + .card-hint .card-hint-back {
+  display: inline;
+}
+
+.summary :focus-visible {
+  outline-color: var(--card-gold-deep, #a87400);
 }
 
 .summary .summary-actions {
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0;
+  margin-top: -0.5rem;
 }
+
+.summary .button:hover {
+  border-color: #f3b61f;
+  background: #f3b61f;
+  color: #15203a;
+}
+
 
 .icon {
   flex: none;

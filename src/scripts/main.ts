@@ -218,17 +218,36 @@ if (card && flipButton) {
   const [front, back] = card.querySelectorAll<HTMLElement>('.card-face');
   const flip = () => {
     const flipped = card.classList.toggle('is-flipped');
+    // Once it has been turned, it no longer needs to show that it can be.
+    card.classList.add('was-flipped');
     // Only the face showing can be tabbed into.
     front.inert = flipped;
     back.inert = !flipped;
     flipButton.setAttribute('aria-pressed', String(flipped));
   };
   flipButton.addEventListener('click', flip);
-  // Clicking the card flips it too, unless the click was on one of its links.
+  // Clicking the card flips it too, unless the click was on a link or button in it.
   card.addEventListener('click', (event) => {
-    if (!(event.target as Element).closest('a')) flip();
+    if (!(event.target as Element).closest('a, button')) flip();
   });
 }
+
+const copyButton = document.querySelector<HTMLButtonElement>('[data-copy]');
+const copyStatus = document.querySelector<HTMLElement>('[data-copy-status]');
+copyButton?.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(copyButton.dataset.copy!);
+  } catch {
+    // No clipboard access (an old browser, or not https): the mailto link still works.
+    return;
+  }
+  copyButton.classList.add('is-copied');
+  if (copyStatus) copyStatus.textContent = 'Email address copied';
+  setTimeout(() => {
+    copyButton.classList.remove('is-copied');
+    if (copyStatus) copyStatus.textContent = '';
+  }, 1600);
+});
 
 /* ---------- Light and dark mode (Professional theme) ---------- */
 
