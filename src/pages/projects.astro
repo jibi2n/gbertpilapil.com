@@ -4,6 +4,7 @@
 import { env } from 'cloudflare:workers';
 import ProjectCard from '../components/ProjectCard.astro';
 import ProjectPanels from '../components/ProjectPanels.astro';
+import TechLogo from '../components/TechLogo.astro';
 import Layout from '../layouts/Layout.astro';
 import type { Project } from '../lib/models/Project';
 import { ProjectRepository } from '../lib/repositories/ProjectRepository';
@@ -37,41 +38,62 @@ const technologies = ranked((project) => project.technologies);
 
 <Layout title={`Projects | ${site.name}`}>
   <section class="section page">
-    <p class="mb-6"><a class="link" href="/#projects">Back to the home page</a></p>
-    <h1 class="display heading section-head">All projects</h1>
-
-    {
-      specializations.length > 1 && (
-        <div class="filters" role="group" aria-label="Filter by specialization">
-          <button type="button" class="chip filter" data-filter-kind="spec" data-filter="" aria-pressed="true">
-            All
+    <p class="page-back">
+      <a href="/#projects">
+        <svg class="icon icon-line" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7 7-7-7 7-7" /></svg>
+        Home
+      </a>
+    </p>
+    <div class="page-head">
+      <div class="page-title">
+        <h1 class="display heading">All projects</h1>
+        <p class="small" aria-live="polite" data-filter-count>
+          {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+        </p>
+      </div>
+      {
+        projects.length > 1 && (
+          <button type="button" class="chip filter-toggle" popovertarget="filter-panel" data-filter-toggle>
+            <svg class="icon icon-line" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
+            Filter
+            <span class="filter-badge" data-filter-badge hidden></span>
           </button>
-          {specializations.map((name) => (
-            <button type="button" class="chip filter" data-filter-kind="spec" data-filter={name} aria-pressed="false">
-              {name}
-            </button>
-          ))}
-        </div>
-      )
-    }
+        )
+      }
+    </div>
 
-    {
-      technologies.length > 1 && (
-        <details class="filter-more">
-          <summary class="link">Filter by technology</summary>
-          <div class="filters filters-small" role="group" aria-label="Filter by technology">
-            <button type="button" class="chip filter" data-filter-kind="tech" data-filter="" aria-pressed="true">
-              Any
-            </button>
-            {technologies.map((name) => (
-              <button type="button" class="chip filter" data-filter-kind="tech" data-filter={name} aria-pressed="false">
-                {name}
-              </button>
-            ))}
-          </div>
-        </details>
-      )
-    }
+    {/* The filters in use, each removable. Filled in by the script below. */}
+    <div class="active-filters" data-active-filters hidden></div>
+
+    {/* One field and one technology at most; tapping a chosen one again clears it. */}
+    <div id="filter-panel" class="filter-panel" popover data-lenis-prevent>
+      <input type="search" class="filter-search" placeholder="Search fields and technologies" aria-label="Search filters" data-filter-search />
+      {
+        [
+          { kind: 'spec', label: 'Field', names: specializations },
+          { kind: 'tech', label: 'Technology', names: technologies },
+        ].map((group) => (
+          <section class="filter-group" data-filter-group>
+            <h2 class="filter-group-label">{group.label}</h2>
+            <div class="filter-options">
+              {group.names.map((name) => (
+                <button type="button" class="chip filter" data-kind={group.kind} data-filter={name} aria-pressed="false">
+                  {group.kind === 'tech' && <TechLogo name={name} />}
+                  {name}
+                </button>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+      <p class="small" data-filter-nomatch hidden>No filters match that search.</p>
+      <div class="filter-panel-foot">
+        <button type="button" class="link" data-filter-clear>Clear</button>
+        <button type="button" class="button" popovertarget="filter-panel" popovertargetaction="hide" data-filter-show>
+          Show {projects.length} projects
+        </button>
+      </div>
+    </div>
 
     {projects.length === 0 && <p class="small">{emptyMessage}</p>}
     <div class="projects">
@@ -84,29 +106,99 @@ const technologies = ranked((project) => project.technologies);
 
   <script>
     // Two filters that work together: a project shows when it matches the
-    // chosen specialization and the chosen technology.
-    const buttons = [...document.querySelectorAll<HTMLButtonElement>('.filter')];
+    // chosen field and the chosen technology. One of each at most.
+    const chips = [...document.querySelectorAll<HTMLButtonElement>('.filter')];
     const cards = [...document.querySelectorAll<HTMLElement>('.project')];
     const empty = document.querySelector<HTMLElement>('.filter-empty');
+    const count = document.querySelector<HTMLElement>('[data-filter-count]');
+    const badge = document.querySelector<HTMLElement>('[data-filter-badge]');
+    const showButton = document.querySelector<HTMLElement>('[data-filter-show]');
+    const activeRow = document.querySelector<HTMLElement>('[data-active-filters]')!;
     const chosen: Record<string, string> = { spec: '', tech: '' };
 
     const has = (list: string | undefined, wanted: string) => wanted === '' || (list ?? '').split('|').includes(wanted);
+    const plural = (n: number) => `${n} ${n === 1 ? 'project' : 'projects'}`;
 
-    for (const button of buttons) {
-      button.addEventListener('click', () => {
-        const kind = button.dataset.filterKind!;
-        chosen[kind] = button.dataset.filter ?? '';
-        for (const other of buttons) {
-          if (other.dataset.filterKind === kind) other.setAttribute('aria-pressed', String(other === button));
-        }
-        let shown = 0;
-        for (const card of cards) {
-          const match = has(card.dataset.spec, chosen.spec) && has(card.dataset.tech, chosen.tech);
-          card.hidden = !match;
-          if (match) shown++;
-        }
-        if (empty) empty.hidden = shown > 0;
+    function update() {
+      for (const chip of chips) {
+        chip.setAttribute('aria-pressed', String(chosen[chip.dataset.kind!] === chip.dataset.filter));
+      }
+      let shown = 0;
+      for (const card of cards) {
+        const match = has(card.dataset.spec, chosen.spec) && has(card.dataset.tech, chosen.tech);
+        card.hidden = !match;
+        if (match) shown++;
+      }
+      if (empty) empty.hidden = shown > 0;
+      if (count) count.textContent = plural(shown);
+      if (showButton) showButton.textContent = `Show ${plural(shown)}`;
+
+      // The chips under the title, one per filter in use, plus "Clear all".
+      const inUse = Object.entries(chosen).filter(([, value]) => value);
+      if (badge) {
+        badge.hidden = inUse.length === 0;
+        badge.textContent = String(inUse.length);
+      }
+      activeRow.hidden = inUse.length === 0;
+      activeRow.replaceChildren(
+        ...inUse.map(([kind, value]) => {
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'chip active-filter';
+          remove.setAttribute('aria-label', `Remove filter: ${value}`);
+          remove.textContent = `${value} ×`;
+          remove.addEventListener('click', () => {
+            chosen[kind] = '';
+            update();
+          });
+          return remove;
+        }),
+      );
+      if (inUse.length > 0) {
+        const clearAll = document.createElement('button');
+        clearAll.type = 'button';
+        clearAll.className = 'link';
+        clearAll.textContent = 'Clear all';
+        clearAll.addEventListener('click', clear);
+        activeRow.append(clearAll);
+      }
+    }
+
+    function clear() {
+      chosen.spec = '';
+      chosen.tech = '';
+      update();
+    }
+
+    for (const chip of chips) {
+      chip.addEventListener('click', () => {
+        const kind = chip.dataset.kind!;
+        chosen[kind] = chosen[kind] === chip.dataset.filter ? '' : chip.dataset.filter!;
+        update();
       });
     }
+    document.querySelector('[data-filter-clear]')?.addEventListener('click', clear);
+
+    // Search narrows the chips in both groups.
+    const search = document.querySelector<HTMLInputElement>('[data-filter-search]');
+    const groups = [...document.querySelectorAll<HTMLElement>('[data-filter-group]')];
+    const noMatch = document.querySelector<HTMLElement>('[data-filter-nomatch]');
+    search?.addEventListener('input', () => {
+      const query = search.value.trim().toLowerCase();
+      for (const chip of chips) chip.hidden = !chip.dataset.filter!.toLowerCase().includes(query);
+      for (const group of groups) group.hidden = !group.querySelector('.filter:not([hidden])');
+      if (noMatch) noMatch.hidden = groups.some((group) => !group.hidden);
+    });
+
+    // The dropdown opens under the Filter button, lined up with its right edge.
+    const panel = document.querySelector<HTMLElement>('#filter-panel');
+    const toggle = document.querySelector<HTMLElement>('[data-filter-toggle]');
+    panel?.addEventListener('toggle', (event) => {
+      if ((event as ToggleEvent).newState !== 'open' || !toggle) return;
+      const box = toggle.getBoundingClientRect();
+      panel.style.top = `${box.bottom + window.scrollY + 8}px`;
+      panel.style.right = `${document.documentElement.clientWidth - box.right}px`;
+      if (matchMedia('(hover: hover)').matches) search?.focus();
+    });
   </script>
 </Layout>

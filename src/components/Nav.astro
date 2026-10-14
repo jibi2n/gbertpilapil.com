@@ -5,7 +5,7 @@ import { site } from '../site';
 ---
 
 <header class="nav">
-  <a href="/#top" class="nav-name">{site.name}</a>
+  <a href="/" class="nav-name" data-home>{site.name}</a>
   <nav class="nav-links" aria-label="Sections">
     {site.sections.map((section) => <a href={`/#${section.id}`}>{section.label}</a>)}
   </nav>

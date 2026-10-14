@@ -31,9 +31,11 @@ const themeIds = themes.map((theme) => theme.id);
     <script is:inline define:vars={{ themeIds }}>
       (function () {
         var root = document.documentElement;
+        // The theme lasts for this tab only, so a new tab or a return visit
+        // starts on the business card again.
         var saved = null;
         try {
-          saved = localStorage.getItem('theme');
+          saved = sessionStorage.getItem('theme');
         } catch (e) {}
         var theme = themeIds.indexOf(saved) >= 0 ? saved : themeIds[0];
         root.dataset.theme = theme;

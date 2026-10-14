@@ -8,9 +8,11 @@
   --t-ink: #15171a;
   --t-muted: #5b616b;
   --t-line: rgb(21 23 26 / 0.16);
-  --t-accent: #1f44ff;
-  --t-on-accent: #ffffff;
-  --t-link: #1f44ff;
+  /* Sky blue. The accent is for fills (selection, button hover); text links
+     use a deeper sky so they stay readable on the light background. */
+  --t-accent: #38bdf8;
+  --t-on-accent: #0c2d48;
+  --t-link: #0272b0;
   --t-nav: rgb(241 242 244 / 0.84);
 
   --t-font-display: 'Schibsted Grotesk Variable', 'Helvetica Neue', Arial, sans-serif;
@@ -33,9 +35,9 @@
   --t-ink: #eceef1;
   --t-muted: #9aa1ad;
   --t-line: rgb(236 238 241 / 0.16);
-  --t-accent: #8aa4ff;
+  --t-accent: #7dd3fc;
   --t-on-accent: #0f1114;
-  --t-link: #9db2ff;
+  --t-link: #7dd3fc;
   --t-nav: rgb(15 17 20 / 0.84);
 
   --t-cover-bg: #1d2127;

@@ -61,9 +61,10 @@ function setTheme(index: number) {
   current = index;
   root.dataset.theme = themes[index].id;
   try {
-    localStorage.setItem('theme', themes[index].id);
+    // For this tab only; a new tab starts on the business card again.
+    sessionStorage.setItem('theme', themes[index].id);
   } catch {
-    // Private browsing: the theme just won't be remembered.
+    // Storage blocked: the theme just won't be remembered.
   }
   showTheme();
   fitText();
@@ -141,6 +142,22 @@ for (const { group, dots } of dotGroups) {
 for (const arrow of document.querySelectorAll<HTMLElement>('[data-theme-step]')) {
   arrow.addEventListener('click', () => setTheme(current + Number(arrow.dataset.themeStep)));
 }
+
+// My name in the top bar goes home: back to the business card. On another
+// page it leaves a note for the home page to open on the card.
+document.querySelector('[data-home]')?.addEventListener('click', (event) => {
+  if (document.querySelector('.summary')) {
+    event.preventDefault();
+    setTheme(themes.findIndex((theme) => theme.id === 'summary'));
+    window.scrollTo(0, 0);
+  } else {
+    try {
+      sessionStorage.setItem('theme', 'summary');
+    } catch {
+      // Storage blocked: the home page opens on its default, the card, anyway.
+    }
+  }
+});
 
 // Buttons that jump straight to one theme, like "See the full site".
 for (const button of document.querySelectorAll<HTMLElement>('[data-set-theme]')) {

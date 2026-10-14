@@ -65,8 +65,8 @@ a {
 @property --t-ink { syntax: '<color>'; inherits: true; initial-value: #15171a; }
 @property --t-muted { syntax: '<color>'; inherits: true; initial-value: #5b616b; }
 @property --t-line { syntax: '<color>'; inherits: true; initial-value: rgb(21 23 26 / 0.16); }
-@property --t-accent { syntax: '<color>'; inherits: true; initial-value: #1f44ff; }
-@property --t-link { syntax: '<color>'; inherits: true; initial-value: #1f44ff; }
+@property --t-accent { syntax: '<color>'; inherits: true; initial-value: #38bdf8; }
+@property --t-link { syntax: '<color>'; inherits: true; initial-value: #0272b0; }
 @property --t-nav { syntax: '<color>'; inherits: true; initial-value: rgb(241 242 244 / 0.84); }
 
 html {
@@ -1123,8 +1123,9 @@ html.motion .card:not(.was-flipped) .card-inner {
 }
 
 .button:hover {
-  background: var(--t-link);
-  border-color: var(--t-link);
+  background: var(--t-accent);
+  border-color: var(--t-accent);
+  color: var(--t-on-accent);
 }
 
 .button-quiet {
@@ -1133,7 +1134,7 @@ html.motion .card:not(.was-flipped) .card-inner {
 }
 
 .button-quiet:hover {
-  color: var(--t-bg);
+  color: var(--t-on-accent);
 }
 
 button.link {
@@ -1628,45 +1629,188 @@ html.motion .egg {
 
 /* ---------- Projects page ---------- */
 
-.filters {
+/* ---------- Projects page filters ---------- */
+
+.page-back {
+  margin-bottom: 1.25rem;
+}
+
+.page-back a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--t-muted);
+  text-decoration: none;
+}
+
+.page-back a:hover {
+  color: var(--t-ink);
+}
+
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+/* The title with the number of projects showing beside it. */
+.page-title {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  align-items: baseline;
+  gap: 0.25rem 0.85rem;
 }
 
-/* The specialization row is the main filter; technology is tucked under a
-   toggle beneath it so the page doesn't open with twenty buttons. */
-.filters:has(+ .filter-more) {
-  margin-bottom: 1rem;
-}
-
-.filter-more {
-  margin-bottom: clamp(2rem, 4vw, 3.5rem);
-}
-
-.filter-more summary {
+.chip.filter-toggle,
+.chip.filter,
+.chip.active-filter {
+  padding: 0.4rem 0.95rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
   cursor: pointer;
-  width: fit-content;
 }
 
-.filters-small {
-  margin: 1rem 0 0;
+.chip.filter-toggle {
+  flex: none;
+  gap: 0.45rem;
 }
 
-.filters-small .chip {
-  padding: 0.3rem 0.8rem;
-  font-size: 0.875rem;
+.filter-toggle:hover,
+.chip.filter:hover,
+.active-filter:hover {
+  border-color: var(--t-ink);
 }
 
-.filter {
-  cursor: pointer;
+.filter-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--t-ink);
+  color: var(--t-bg);
+  font-size: 0.75rem;
+}
+
+.filter-badge[hidden] {
+  display: none;
 }
 
 .filter[aria-pressed='true'] {
   background: var(--t-ink);
   border-color: var(--t-ink);
   color: var(--t-bg);
+}
+
+/* Filters in use, under the title. */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.active-filters[hidden] {
+  display: none;
+}
+
+.active-filters .link {
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* The dropdown. It sits in the page's top layer, placed under the button by
+   the script; tapping outside or pressing Escape closes it. */
+.filter-panel {
+  position: absolute;
+  inset: auto;
+  /* Percent of the page width, so the scrollbar is left out. */
+  width: min(26rem, calc(100% - 2 * var(--gutter)));
+  max-height: min(34rem, 70vh);
+  margin: 0;
+  padding: 1rem 1rem 0;
+  overflow-y: auto;
+  border: 1px solid var(--t-line);
+  border-radius: 14px;
+  background: var(--t-surface);
+  color: var(--t-ink);
+  box-shadow: 0 1.25rem 3rem -1rem rgb(0 0 0 / 0.25);
+}
+
+.filter-panel::backdrop {
+  background: transparent;
+}
+
+.filter-search {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--t-line);
+  border-radius: var(--t-radius-pill);
+  background: var(--t-bg);
+  color: var(--t-ink);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.filter-group {
+  margin-top: 1rem;
+}
+
+.filter-group[hidden] {
+  display: none;
+}
+
+.filter-group-label {
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--t-muted);
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.filter-options .chip.filter {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.filter[hidden] {
+  display: none;
+}
+
+[data-filter-nomatch] {
+  margin-top: 1rem;
+}
+
+/* Stays at the bottom of the dropdown while its contents scroll. */
+.filter-panel-foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem -1rem 0;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--t-line);
+  background: var(--t-surface);
+}
+
+.filter-panel-foot .link {
+  cursor: pointer;
+}
+
+.filter-panel-foot .button {
+  padding: 0.5rem 1.1rem;
+  font-size: 0.9rem;
 }
 
 .project[hidden] {
@@ -1988,6 +2132,12 @@ html.motion .egg {
 @media (max-width: 699px) {
   .section {
     padding-block: 3rem;
+  }
+
+  /* Pages other than home still start below the fixed top bar. */
+  .section.page,
+  .section.resume {
+    padding-top: calc(var(--nav-h) + 1.5rem);
   }
 
   .section-head {
