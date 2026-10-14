@@ -30,7 +30,7 @@ export const site = {
   phone: '',
   /** The business card on the landing view. */
   card: {
-    pitch: 'I build web apps, AI tools, and data pipelines.',
+    pitch: "Let's learn new technologies together!",
     title: 'Full-Stack Developer',
     school: '4th Year BS Computer Science, University of Santo Tomas',
     /** Technology names, as in the database, so they pick up their logos.

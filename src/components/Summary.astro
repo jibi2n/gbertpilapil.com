@@ -28,6 +28,32 @@ const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github'
   <div class="card" data-card>
     <div class="card-inner">
       <div class="card-face card-front">
+        {/* Faint circuit traces in the top right corner, fading out toward the middle. */}
+        <svg class="card-circuit" viewBox="0 0 240 160" aria-hidden="true">
+          <defs>
+            <pattern id="card-grid" width="12" height="12" patternUnits="userSpaceOnUse">
+              <path d="M12 0H0V12" fill="none" stroke="currentColor" stroke-width="0.4" />
+            </pattern>
+            <radialGradient id="card-fade" cx="1" cy="0" r="1">
+              <stop offset="0" stop-color="#fff" />
+              <stop offset="1" stop-color="#fff" stop-opacity="0" />
+            </radialGradient>
+            <mask id="card-circuit-mask">
+              <rect width="240" height="160" fill="url(#card-fade)" />
+            </mask>
+          </defs>
+          <g mask="url(#card-circuit-mask)" fill="none" stroke="currentColor" stroke-width="1">
+            <rect width="240" height="160" fill="url(#card-grid)" stroke="none" />
+            <path d="M240 22h-62l-16 16h-46M240 48h-44l-14 14h-34l-14 14M240 74h-36l-14 14h-26M240 104h-26l-14 14v22M196 0v14l16 16h28M150 0v18l14 14M120 0v8l-12 12h-30" />
+            <circle cx="116" cy="38" r="2.5" />
+            <circle cx="114" cy="76" r="2.5" />
+            <circle cx="164" cy="88" r="2.5" />
+            <circle cx="200" cy="140" r="2.5" />
+            <circle cx="164" cy="32" r="2.5" />
+            <circle cx="78" cy="20" r="2.5" />
+          </g>
+        </svg>
+
         <p class="card-pitch">{site.card.pitch}</p>
 
         <div class="card-bottom">
@@ -35,6 +61,7 @@ const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github'
             <h1 class="display card-name">{site.name}</h1>
             <p class="card-title">{site.card.title}</p>
             <p class="card-school">{site.card.school}</p>
+            <p class="card-school card-location"><Icon name="pin" />{site.location}</p>
           </div>
 
           <div class="card-contact">
