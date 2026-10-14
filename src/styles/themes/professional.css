@@ -25,9 +25,8 @@
   --t-cover-ink: #f1f2f4;
 }
 
-/* Dark mode for Professional and Summary. The other themes have one look each
-   and ignore data-mode. */
-[data-theme='summary'][data-mode='dark'],
+/* Dark mode for Professional. The other themes have one look each and
+   ignore data-mode. */
 [data-theme='professional'][data-mode='dark'] {
   --t-bg: #0f1114;
   --t-surface: #181b20;

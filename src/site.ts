@@ -26,6 +26,8 @@ export const site = {
     ],
   },
   email: 'gbertpilapil12@gmail.com',
+  /** Shown on the business card. Left blank, it is hidden. */
+  phone: '',
   links: [
     { label: 'LinkedIn', href: 'https://linkedin.com/in/gbert-pilapil' },
     { label: 'GitHub', href: 'https://github.com/jibi2n' },

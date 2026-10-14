@@ -47,13 +47,8 @@ try {
 ---
 
 <Layout>
-  <!-- Shown only in the Summary theme: the short version for employers. -->
-  <Summary
-    projects={projects}
-    moreCount={listedCount - projects.length}
-    experiences={experiences}
-    stack={stack}
-  />
+  <!-- Shown only in the Summary theme: a business card. -->
+  <Summary projects={projects} stack={stack} />
 
   <!-- The full site, shown in every other theme. -->
   <div class="full-view">

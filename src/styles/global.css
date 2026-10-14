@@ -251,7 +251,7 @@ html.mode-to-dark::view-transition-old(root) {
   color: var(--t-link);
 }
 
-/* Light/dark switch. Only the Professional and Summary themes have two modes. */
+/* Light/dark switch. Only the Professional theme has two modes. */
 .mode-toggle {
   display: none;
   place-items: center;
@@ -261,7 +261,6 @@ html.mode-to-dark::view-transition-old(root) {
   cursor: pointer;
 }
 
-[data-theme='summary'] .mode-toggle,
 [data-theme='professional'] .mode-toggle {
   display: grid;
 }
@@ -634,7 +633,7 @@ footer {
   max-width: 28ch;
 }
 
-/* ---------- Summary theme: a plain resume for hiring managers ---------- */
+/* ---------- Summary theme: a business card ---------- */
 
 .summary {
   display: none;
@@ -644,70 +643,283 @@ footer {
 
 /* The Summary theme swaps the full site for the summary. */
 [data-theme='summary'] .summary {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
 }
 
 [data-theme='summary'] .full-view {
   display: none;
 }
 
-/* The landing view is one narrow, centered column. Short lines are easier to
-   read, and a single column gives the eye one path down the page. The top
-   bar and footer still span the screen. */
-.summary-wrap {
-  max-width: 850px;
-  margin-inline: auto;
+/* The business card. Its size is fixed by its shape (landscape on wide
+   screens, portrait on phones) and both faces fill it, so flipping never
+   changes the height. The front is the dark ink side; the back is paper. */
+.card {
+  --card-ink: #15203a;
+  --card-paper: #fbfaf7;
+  --card-gold: #f3b61f;
+  --card-ink-muted: #5d6475;
+  --card-paper-muted: #a9b0c2;
+
+  position: relative;
+  width: min(100%, 40rem);
+  aspect-ratio: 7 / 4;
+  perspective: 1800px;
+  cursor: pointer;
 }
 
-.summary-hi {
-  font-size: 1.1rem;
-  color: var(--t-muted);
-}
-
-.summary-name {
-  margin-top: 0.2rem;
-  font-size: clamp(1.75rem, 4vw, 2.25rem);
-  line-height: 1.1;
-}
-
-.summary-lede {
-  max-width: 68ch;
-  margin-top: 1rem;
-  font-size: 1.05rem;
-  line-height: 1.6;
-}
-
-/* Contact details: an icon and a label each, sized to be easy to tap. */
-.contact-row {
+.card-face {
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
+  flex-direction: column;
+  overflow: hidden;
+  padding: clamp(1.25rem, 3.5vw, 2.25rem);
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgb(21 32 58 / 0.12),
+    0 1.5rem 3.5rem -1rem rgb(21 32 58 / 0.35);
+  backface-visibility: hidden;
+  transition: transform 0.9s cubic-bezier(0.3, 0.1, 0.2, 1);
 }
 
-.contact-row a,
-.contact-plain {
+.card-back {
+  transform: rotateY(180deg);
+}
+
+.card.is-flipped .card-front {
+  transform: rotateY(-180deg);
+}
+
+.card.is-flipped .card-back {
+  transform: rotateY(0deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-face {
+    transition: none;
+  }
+}
+
+/* Front */
+.card-front {
+  justify-content: flex-end;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgb(243 182 31 / 0.14), transparent 55%),
+    var(--card-ink);
+  color: var(--card-paper);
+}
+
+.card-front :focus-visible {
+  outline-color: var(--card-gold);
+}
+
+.card-flip-hint {
+  position: absolute;
+  top: clamp(1.25rem, 3.5vw, 2.25rem);
+  right: clamp(1.25rem, 3.5vw, 2.25rem);
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: var(--card-paper-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.card-name {
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 600;
+  line-height: 0.95;
+}
+
+.card-title {
+  margin-top: 0.7rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--card-gold);
+}
+
+.card-school {
+  margin-top: 0.2rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--card-paper-muted);
+}
+
+.card-contact {
+  display: grid;
+  gap: 0.15rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgb(251 250 247 / 0.14);
+  font-size: 0.9rem;
+}
+
+.card-contact a {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  min-height: 2.75rem;
-  padding: 0 0.95rem;
-  border: 1px solid var(--t-line);
-  border-radius: var(--t-radius-pill);
-  font-size: 0.95rem;
+  gap: 0.55rem;
+  min-height: 2.25rem;
   text-decoration: none;
 }
 
-.contact-row a:hover {
-  border-color: var(--t-ink);
-  color: var(--t-link);
+.card-contact a:hover {
+  color: var(--card-gold);
 }
 
-/* The location isn't a link, so it doesn't look like one. */
-.contact-plain {
-  border-color: transparent;
-  padding-inline: 0.35rem;
-  color: var(--t-muted);
+.card-socials {
+  display: flex;
+  margin-left: -0.6rem;
+}
+
+/* Icon-only links still get a full-size tap target. */
+.card-socials a {
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.card-socials .icon {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* Wide screens: who I am on the left, how to reach me on the right. */
+@media (min-width: 640px) {
+  .card-front {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .card-contact {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    justify-items: end;
+  }
+
+  .card-socials {
+    margin: 0 -0.6rem 0 0;
+  }
+}
+
+/* Back */
+.card-back {
+  gap: 1.25rem;
+  background: var(--card-paper);
+  color: var(--card-ink);
+}
+
+.card-label {
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--card-ink-muted);
+}
+
+.card-projects {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.card-projects a,
+.card-projects span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.card-projects a .icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--card-ink-muted);
+  transition: transform 0.2s ease;
+}
+
+.card-projects a:hover {
+  color: #1f44ff;
+}
+
+.card-projects a:hover .icon {
+  color: currentColor;
+  transform: translate(2px, -2px);
+}
+
+.card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+.card-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.12rem 0.5rem;
+  border: 1px solid rgb(21 32 58 / 0.14);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--card-ink-muted);
+}
+
+.card-logos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(2.25rem, 1fr));
+  gap: 0.4rem;
+}
+
+.card-logos li {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 1px solid rgb(21 32 58 / 0.1);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--logo, var(--card-ink));
+}
+
+.card-logos .icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Wide screens: projects and stack side by side. */
+@media (min-width: 640px) {
+  .card-back {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Phones: a portrait card, like one held upright. */
+@media (max-width: 639px) {
+  .card {
+    aspect-ratio: 5 / 8;
+    max-width: 24rem;
+  }
+
+  .card-logos {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.3rem;
+  }
+}
+
+.summary .summary-actions {
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0;
 }
 
 .icon {
@@ -728,97 +940,6 @@ footer {
   fill: currentColor;
 }
 
-.summary-block {
-  margin-top: clamp(2.75rem, 5vw, 4rem);
-}
-
-/* One heading size for every section of the landing view. */
-.summary .heading {
-  margin-bottom: 1rem;
-  font-size: clamp(1.35rem, 2.2vw, 1.6rem);
-}
-
-/* Two project cards per row in the narrow column, one on phones. */
-.summary .projects {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-  gap: 1.25rem;
-}
-
-/* A project card: a picture on top of a quiet panel. */
-.summary .project {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding-bottom: 1.25rem;
-  border: 1px solid var(--t-line);
-  border-radius: 12px;
-  background: var(--t-surface);
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
-}
-
-.summary .project:hover {
-  transform: translateY(-3px);
-  border-color: var(--t-muted);
-  box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 0.1);
-}
-
-.summary .project .media {
-  border-radius: 0;
-  border-bottom: 1px solid var(--t-line);
-}
-
-.summary .project > :not(.media) {
-  margin-inline: 1.25rem;
-}
-
-.summary .project-title {
-  margin-top: 1rem;
-  font-size: 1.15rem;
-}
-
-.summary .project-summary {
-  margin-top: 0.4rem;
-  font-size: 0.95rem;
-  color: var(--t-muted);
-}
-
-/* One experience, education or award entry. */
-.entry {
-  padding: 1.1rem 0;
-  border-top: 1px solid var(--t-line);
-}
-
-.entry-head {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0.15rem 1.5rem;
-}
-
-.entry h3 {
-  font-size: 1.08rem;
-  font-weight: 600;
-}
-
-.entry-when,
-.entry-sub {
-  font-size: 0.9rem;
-  color: var(--t-muted);
-}
-
-.entry-when {
-  white-space: nowrap;
-}
-
-.entry-text {
-  max-width: 68ch;
-  margin-top: 0.5rem;
-}
-
 /* Skills used in a role, as small labels. */
 .tags {
   display: flex;
@@ -833,24 +954,6 @@ footer {
   border-radius: var(--t-radius-pill);
   font-size: 0.82rem;
   color: var(--t-muted);
-}
-
-/* Skills by category: the category on the left, the list beside it. */
-.skill-row {
-  display: grid;
-  gap: 0.15rem 1.5rem;
-  padding: 0.8rem 0;
-  border-top: 1px solid var(--t-line);
-}
-
-.skill-row dt {
-  font-weight: 600;
-}
-
-@media (min-width: 640px) {
-  .skill-row {
-    grid-template-columns: 13rem 1fr;
-  }
 }
 
 /* Small headings that name a block (used in the project panels). */

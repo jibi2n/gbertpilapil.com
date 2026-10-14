@@ -210,7 +210,27 @@ function endDrag() {
 window.addEventListener('pointerup', endDrag);
 window.addEventListener('pointercancel', endDrag);
 
-/* ---------- Light and dark mode (Professional and Summary themes) ---------- */
+/* ---------- Business card (Summary theme) ---------- */
+
+const card = document.querySelector<HTMLElement>('[data-card]');
+const flipButton = document.querySelector<HTMLButtonElement>('[data-card-flip]');
+if (card && flipButton) {
+  const [front, back] = card.querySelectorAll<HTMLElement>('.card-face');
+  const flip = () => {
+    const flipped = card.classList.toggle('is-flipped');
+    // Only the face showing can be tabbed into.
+    front.inert = flipped;
+    back.inert = !flipped;
+    flipButton.setAttribute('aria-pressed', String(flipped));
+  };
+  flipButton.addEventListener('click', flip);
+  // Clicking the card flips it too, unless the click was on one of its links.
+  card.addEventListener('click', (event) => {
+    if (!(event.target as Element).closest('a')) flip();
+  });
+}
+
+/* ---------- Light and dark mode (Professional theme) ---------- */
 
 const modeToggle = document.querySelector<HTMLButtonElement>('.mode-toggle')!;
 
