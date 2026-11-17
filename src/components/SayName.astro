@@ -1,0 +1,19 @@
+---
+// How to say my first name: the spelling is always shown, and a click has the
+// browser's own voice say it (see "Say my name" in src/scripts/main.ts).
+import { site } from '../site';
+import Icon from './Icon.astro';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+const { say, written } = site.pronunciation;
+const firstName = site.name.split(' ')[0];
+---
+
+<button type="button" class:list={['say-name', className]} data-say={say} aria-label={`Hear how to say ${firstName}`}>
+  <Icon name="speaker" />
+  <span aria-hidden="true">{written}</span>
+</button>

@@ -6,6 +6,7 @@ import type { Project } from '../lib/models/Project';
 import { techColor, techIcon } from '../lib/techIcons';
 import { site } from '../site';
 import Icon from './Icon.astro';
+import SayName from './SayName.astro';
 
 interface Props {
   /** The showcased projects. The first three go on the back. */
@@ -63,7 +64,10 @@ const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github'
 
         <div class="card-bottom">
           <div>
-            <h1 class="display card-name">{site.name}</h1>
+            <div class="card-name-row">
+              <h1 class="display card-name">{site.name}</h1>
+              <SayName class="card-say" />
+            </div>
             <p class="card-title">{site.card.title}</p>
             <p class="card-school">{site.card.school}</p>
             <p class="card-school card-location"><Icon name="pin" />{site.location}</p>

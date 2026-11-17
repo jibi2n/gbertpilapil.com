@@ -8,6 +8,9 @@ export const site = {
       Each should read naturally after "a". */
   roles: ['Software Engineer', 'Full-stack Developer', 'UI/UX Designer', 'Computer Science Student', 'Data Scientist', 'AI & Automation Enthusiast', 'Researcher'],
   location: 'Quezon City, Philippines',
+  /** How to say my first name. `written` is shown; `say` is what the browser's voice reads
+      out ("G" on its own is read as "jee" by every voice). */
+  pronunciation: { written: 'jee-bert', say: 'G-bert' },
   /** What I'm looking for. Shown on the business card and in the intro. */
   availability: 'Open to internships and entry-level roles (May/June 2027) · Graduating June 2027',
   /** The pitch at the top of the Summary theme. Keep it to two or three sentences. */

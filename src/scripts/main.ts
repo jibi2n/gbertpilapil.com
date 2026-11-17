@@ -277,6 +277,32 @@ if (card && flipButton) {
   });
 }
 
+// Say my name: the browser's own voice reads it out. Without a voice the
+// written pronunciation beside the icon still does the job, so the icon goes.
+const sayButtons = document.querySelectorAll<HTMLButtonElement>('[data-say]');
+if (!('speechSynthesis' in window)) {
+  document.documentElement.classList.add('no-speech');
+} else {
+  for (const button of sayButtons) {
+    button.addEventListener('click', () => {
+      speechSynthesis.cancel();
+      const words = new SpeechSynthesisUtterance(button.dataset.say);
+      words.lang = 'en-US';
+      words.rate = 0.85;
+      const done = () => button.classList.remove('is-speaking');
+      words.onend = done;
+      words.onerror = done;
+      button.classList.add('is-speaking');
+      speechSynthesis.speak(words);
+    });
+  }
+}
+
+// The spelling under the big name is a second, larger way in on phones.
+document.querySelector('.intro-say')?.addEventListener('click', () => {
+  document.querySelector<HTMLButtonElement>('.name-say')?.click();
+});
+
 // Copy buttons: put their text on the clipboard and say so for a moment.
 const copyStatus = document.querySelector<HTMLElement>('[data-copy-status]');
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {

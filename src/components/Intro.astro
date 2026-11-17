@@ -7,7 +7,8 @@ import ThemeDots from './ThemeDots.astro';
 // the last word, then the last word.
 const words = site.name.split(' ');
 const lastName = words.pop();
-const firstNames = words.join(' ');
+// The first name is also the button that says it out loud.
+const [firstName, ...middle] = words;
 
 const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github' | 'facebook' | 'instagram';
 ---
@@ -29,10 +30,20 @@ const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github'
 
     <h1 class="intro-name">
       <span class="display fit" data-fit>
-        <span class="fit-line" data-intro-line>{firstNames}</span>
+        <span class="fit-line" data-intro-line
+          ><button type="button" class="name-say" data-say={site.pronunciation.say} aria-describedby="name-say-hint"
+            >{firstName}</button
+          >{middle.length > 0 && ` ${middle.join(' ')}`}</span
+        >
         <span class="fit-line" data-intro-line>{lastName}</span>
       </span>
     </h1>
+    {/* How to say it, under the first name. Wide screens show it while the
+        name is pointed at or speaking; phones always show it. */}
+    <p class="intro-say" aria-hidden="true">
+      <span class="say-name say-tip"><Icon name="speaker" /><span>{site.pronunciation.written}</span></span>
+    </p>
+    <span id="name-say-hint" hidden>Plays how to say it: {site.pronunciation.written}</span>
 
     {/* Under the name. Wide screens: the role on the left and what I'm looking
         for on the right, then the social links beside the buttons, which sit in

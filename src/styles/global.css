@@ -771,6 +771,119 @@ html.motion .button-down:is(:hover, :focus-visible) .icon {
   display: inline;
 }
 
+/* ---------- Say my name ---------- */
+
+/* Under the first name (and beside the name on the card): the written
+   pronunciation, and a speaker that reads it out. Quiet until pointed at. */
+.say-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.25em 0;
+  font-family: var(--t-font-body);
+  font-size: clamp(0.875rem, 0.85vw, 0.95rem);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--t-muted);
+  vertical-align: middle;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.say-name:hover,
+.say-name.is-speaking {
+  color: var(--t-ink);
+}
+
+/* The first name in the big heading is the button that says it. */
+.name-say {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Under the first name: the speaker and the spelling. Phones always show it,
+   and a tap on it plays the name too (see main.ts). The padding gives a thumb
+   something to hit; the negative margin keeps the spacing as it was. */
+.intro-say {
+  margin-top: 0.25rem;
+}
+
+.intro-say .say-tip {
+  padding: 0.6rem 0.9rem;
+  margin: -0.6rem -0.9rem;
+}
+
+/* Wide screens with a pointer: it takes no room and appears while the name
+   is hovered, focused or speaking, its sound waves pulsing. */
+@media (hover: hover) and (min-width: 700px) {
+  .intro-say {
+    height: 0;
+    pointer-events: none;
+    margin-top: -0.6rem;
+    padding-left: clamp(0.4rem, 0.6vw, 0.75rem);
+  }
+
+  .say-tip {
+    opacity: 0;
+    transform: translateY(-0.35rem);
+    transition:
+      opacity 0.25s ease,
+      transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .intro-main:has(.name-say:is(:hover, :focus-visible, .is-speaking)) .say-tip {
+    opacity: 1;
+    transform: none;
+    color: var(--t-ink);
+  }
+
+  html.motion .intro-main:has(.name-say:is(:hover, :focus-visible)) .say-tip .wave {
+    animation: say-wave 0.9s ease-in-out infinite;
+  }
+
+  html.motion .intro-main:has(.name-say:is(:hover, :focus-visible)) .say-tip .wave + .wave {
+    animation-delay: 0.15s;
+  }
+}
+
+/* Speaking (any screen): the waves pulse. */
+html.motion .intro-main:has(.name-say.is-speaking) .say-tip .wave {
+  animation: say-wave 0.9s ease-in-out infinite;
+}
+
+html.motion .intro-main:has(.name-say.is-speaking) .say-tip .wave + .wave {
+  animation-delay: 0.15s;
+}
+
+/* While it speaks, the sound waves pulse outward. */
+html.motion .say-name.is-speaking .wave {
+  animation: say-wave 0.9s ease-in-out infinite;
+}
+
+html.motion .say-name.is-speaking .wave + .wave {
+  animation-delay: 0.15s;
+}
+
+@keyframes say-wave {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* No voice in this browser: the spelling stays, the speaker goes. */
+.no-speech .say-name {
+  cursor: auto;
+}
+
+.no-speech .say-name .icon {
+  display: none;
+}
+
 /* ---------- Summary theme: a business card ---------- */
 
 .summary {
@@ -950,6 +1063,29 @@ html.motion .button-down:is(:hover, :focus-visible) .icon {
   font-weight: 700;
   line-height: 0.95;
   white-space: nowrap;
+}
+
+/* The name with how to say it, on the card's own colors. */
+.card-name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4em 0.8em;
+}
+
+.card .card-say {
+  font-size: max(0.8em, 11px);
+  color: var(--card-paper-muted);
+}
+
+.card .card-say:hover,
+.card .card-say.is-speaking {
+  color: var(--card-gold);
+}
+
+.card .card-say .icon {
+  width: 1.15em;
+  height: 1.15em;
 }
 
 .card-title {
@@ -1169,6 +1305,7 @@ html.motion .button-down:is(:hover, :focus-visible) .icon {
   .card-name {
     font-size: 2em;
   }
+
 
   .card-title {
     margin-top: 0.4em;
