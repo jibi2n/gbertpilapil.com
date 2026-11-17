@@ -34,40 +34,60 @@ const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github'
       </span>
     </h1>
 
-    <ul class="contact-links intro-socials" aria-label="Elsewhere" data-intro>
-      {
-        site.links.map((link) => (
-          <li>
-            <a href={link.href} aria-label={link.label} title={link.label}>
-              <Icon name={linkIcon(link.label)} />
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    {/* Under the name. Wide screens: the role on the left and what I'm looking
+        for on the right, then the social links beside the buttons, which sit in
+        the middle. Phones: one centred column in source order. */}
+    <div class="intro-under">
+      <ul class="contact-links intro-socials" aria-label="Elsewhere" data-intro>
+        {
+          site.links.map((link) => (
+            <li>
+              <a href={link.href} aria-label={link.label} title={link.label}>
+                <Icon name={linkIcon(link.label)} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
 
-    <p class="intro-aside" data-intro>
-      <span class="role-static">I'm a {site.roles[0]}</span>
-      <!-- Futuristic theme only: the word is typed out, deleted and replaced by the script. -->
-      <span class="role-typed">
-        <span class="sr-only">I'm a {site.roles.join(', ')}.</span>
-        <span aria-hidden="true">
-          I'm a <span class="typed" data-roles={JSON.stringify(site.roles)}>{site.roles[0]}</span><span class="caret">|</span>
+      <p class="intro-aside intro-role" data-intro>
+        <span class="role-static">I'm a {site.roles[0]}</span>
+        <!-- Futuristic theme only: the word is typed out, deleted and replaced by the script. -->
+        <span class="role-typed">
+          <span class="sr-only">I'm a {site.roles.join(', ')}.</span>
+          <span aria-hidden="true">
+            I'm a <span class="typed" data-roles={JSON.stringify(site.roles)}>{site.roles[0]}</span><span class="caret">|</span>
+          </span>
         </span>
-      </span>
-    </p>
+      </p>
 
-    <dl class="facts intro-facts" data-intro>
-      {
-        site.about.facts.map((fact) => (
-          <div>
-            <dt>{fact.label}</dt>
-            <dd>{fact.value}</dd>
-          </div>
-        ))
-      }
-    </dl>
-    <a class="button intro-cta" href="#projects" data-intro>Check my work</a>
+      <p class="availability" data-intro>
+        {site.availability.split(' · ').map((part, i) => (i === 0 ? <span>{part}</span> : <> <span>· {part}</span></>))}
+      </p>
+
+      {/* Phones only: they stand in for the About section, which phones leave out. */}
+      <dl class="facts intro-facts" data-intro>
+        {
+          site.about.facts.map((fact) => (
+            <div>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <p class="intro-actions" data-intro>
+        <a class="button button-down" href="#projects">
+          See my projects
+          <svg class="icon icon-line" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="chev" d="m6 5 6 6 6-6" />
+            <path class="chev" d="m6 12 6 6 6-6" />
+          </svg>
+        </a>
+        <a class="button button-quiet" href="/resume">Resume</a>
+      </p>
+    </div>
   </div>
 
   <div class="intro-row intro-bottom" data-intro>

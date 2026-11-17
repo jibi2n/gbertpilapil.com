@@ -6,8 +6,10 @@ export const site = {
     'Portfolio of Gbert O. Pilapil, a computer science student at the University of Santo Tomas, specializing mainly in software engineering and data science.',
   /** Under the name: "I'm a ...". The first is shown as is; the Futuristic theme types out each in turn.
       Each should read naturally after "a". */
-  roles: ['Full-stack Developer', 'UI/UX Designer', 'Computer Science Student', 'Data Scientist', 'AI & Automation Enthusiast', 'Researcher'],
+  roles: ['Software Engineer', 'Full-stack Developer', 'UI/UX Designer', 'Computer Science Student', 'Data Scientist', 'AI & Automation Enthusiast', 'Researcher'],
   location: 'Quezon City, Philippines',
+  /** What I'm looking for. Shown on the business card and in the intro. */
+  availability: 'Open to internships and entry-level roles (May/June 2027) · Graduating June 2027',
   /** The pitch at the top of the Summary theme. Keep it to two or three sentences. */
   summary:
     "Hi I am an aspiring Software Engineer or Data Scientist. I enjoy building things and learning new technologies. I am very interested in AI and automation, and I am always looking for ways to expand my skills and knowledge. Most of my experience is in building web applications (mostly full stack), but I can also work with data and other stuff.",
@@ -31,7 +33,7 @@ export const site = {
   /** The business card on the landing view. */
   card: {
     pitch: "Let's learn new technologies together!",
-    title: 'Full-Stack Developer',
+    title: 'Software Engineer',
     school: '4th Year BS Computer Science, University of Santo Tomas',
     /** Technology names, as in the database, so they pick up their logos.
         Small cards (phones) show only the first six. */

@@ -54,7 +54,12 @@ const linkIcon = (label: string) => label.toLowerCase() as 'linkedin' | 'github'
           </g>
         </svg>
 
-        <p class="card-pitch">{site.card.pitch}</p>
+        <div class="card-top">
+          <p class="card-pitch">{site.card.pitch}</p>
+          <p class="card-availability">
+            {site.availability.split(' · ').map((part, i) => (i === 0 ? <span>{part}</span> : <> <span>· {part}</span></>))}
+          </p>
+        </div>
 
         <div class="card-bottom">
           <div>

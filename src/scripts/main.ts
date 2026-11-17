@@ -252,13 +252,22 @@ const card = document.querySelector<HTMLElement>('[data-card]');
 const flipButton = document.querySelector<HTMLButtonElement>('[data-card-flip]');
 if (card && flipButton) {
   const [front, back] = card.querySelectorAll<HTMLElement>('.card-face');
+  // Wide screens show both faces side by side (see global.css), so nothing flips there.
+  const sideBySide = matchMedia('(min-width: 1100px)');
+  const syncFaces = () => {
+    const flipped = card.classList.contains('is-flipped');
+    front.inert = !sideBySide.matches && flipped;
+    back.inert = !sideBySide.matches && !flipped;
+  };
+  syncFaces();
+  sideBySide.addEventListener('change', syncFaces);
   const flip = () => {
+    if (sideBySide.matches) return;
     const flipped = card.classList.toggle('is-flipped');
     // Once it has been turned, it no longer needs to show that it can be.
     card.classList.add('was-flipped');
     // Only the face showing can be tabbed into.
-    front.inert = flipped;
-    back.inert = !flipped;
+    syncFaces();
     flipButton.setAttribute('aria-pressed', String(flipped));
   };
   flipButton.addEventListener('click', flip);
