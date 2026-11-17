@@ -292,7 +292,8 @@ if (!('speechSynthesis' in window)) {
       const done = () => button.classList.remove('is-speaking');
       words.onend = done;
       words.onerror = done;
-      button.classList.add('is-speaking');
+      // "was-said" keeps the spelling out once revealed (the card hides it until then).
+      button.classList.add('is-speaking', 'was-said');
       speechSynthesis.speak(words);
     });
   }
